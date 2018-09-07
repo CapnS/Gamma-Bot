@@ -312,7 +312,7 @@ class Bot(commands.Bot):
                 title=f"{new}"
             )
             embed.set_author(
-                name="Users roles were updated.",
+                name="Users roles were updated",
                 icon_url=new.avatar_url_as(format="png")
             )
             for role in old.roles:
@@ -329,7 +329,37 @@ class Bot(commands.Bot):
                     )
             await channel.send(embed=embed)
 
+    async def on_member_remove(self, member):
+        channel = await self.get_logging_channel(member.guild)
+        if not channel:
+            return
+        embed = discord.Embed(
+            color=discord.Color.blurple(),
+            title=str(member),
+            timestamp=datetime.utcnow()
+        )
+        embed.set_author(
+            name="Member left the server",
+            icon_url=member.avatar_url_as(format="png")
+        )
+        embed.set_thumbnail(url=member.avatar_url_as(format="png"))
+        await channel.send(embed=embed)
 
+    async def on_member_join(self, member):
+        channel = await self.get_logging_channel(member.guild)
+        if not channel:
+            return
+        embed = discord.Embed(
+            color=discord.Color.blurple(),
+            timestamp=datetime.utcnow(),
+            title=str(member)
+        )
+        embed.set_author(
+            name="User joined the server",
+            icon_url=member.avatar_url_as(format="png")
+        )
+        embed.set_thumbnail(url=member.avatar_url_as(format="png"))
+        await channel.send(embed=embed)
 
 
 if __name__ == "__main__":
