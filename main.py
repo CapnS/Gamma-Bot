@@ -129,7 +129,8 @@ class Bot(commands.Bot):
             return
         try:
             if message.author.id in self.user_blacklist[message.guild.id] and not \
-                    (await self.is_owner(message.author) or message.author.permissions_in(message.channel).administrator):
+                    (await self.is_owner(message.author) or
+                     message.author.permissions_in(message.channel).administrator):
                 return
         except KeyError:
             pass
@@ -186,18 +187,21 @@ class Bot(commands.Bot):
 
     async def get_logging_channel(self, guild):
         data = await self.db.fetchval("SELECT channelid FROM logging WHERE guildid=$1;", guild.id)
-        if not data: return
+        if not data:
+            return
         return guild.get_channel(data)
 
     async def on_message_delete(self, message):
         channel = await self.get_logging_channel(message.guild)
         if not channel:
             return
+        if not message.content:
+            return
         embed = discord.Embed(
             color=discord.Color.blurple(),
             title=f"{message.author}",
             description=f"{message.channel.mention}",
-            timestamp=message.created_at
+            timestamp=datetime.utcnow()
         )
         embed.set_author(
             name="Message was deleted",
@@ -206,6 +210,32 @@ class Bot(commands.Bot):
         embed.add_field(
             name="Content",
             value=message.content
+        )
+        await channel.send(embed=embed)
+
+    async def on_message_edit(self, old, new):
+        if old.content == new.content:
+            return
+        channel = await self.get_logging_channel(new.guild)
+        if not channel:
+            return
+        embed = discord.Embed(
+            title=f"{new.author}",
+            color=discord.Color.blurple(),
+            description=f"{new.channel.mention}",
+            timestamp=datetime.utcnow()
+        )
+        embed.set_author(
+            name="Message was edited",
+            icon_url=new.author.avatar_url_as(format="png")
+        )
+        embed.add_field(
+            name="Before",
+            value=old.content
+        )
+        embed.add_field(
+            name="After",
+            value=new.content
         )
         await channel.send(embed=embed)
 

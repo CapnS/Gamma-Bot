@@ -15,8 +15,8 @@ class Logging:
     )
     async def logging_new(self, ctx, *, channel: discord.TextChannel=None):
         channel = channel or ctx.channel
-        if channel.id in self.bot.logging_channels:
-            raise CommandError("This guild already has a logging channel.")
+        exist = await self.bot.db.fetchval("SELECT channelid FROM logging WHERE guildid=$1;", channel.guild.id)
+        assert exist is None, "This guild already has a logging channel."
         m = await ctx.send(
             embed=discord.Embed(
                 color=discord.Color.blurple(),
