@@ -56,7 +56,7 @@ class Mods:
         try:
             data = self.bot.user_blacklist.get(ctx.guild.id)
         except KeyError:
-            raise discord.errors.CommandError("Guild does not have a blacklist.")
+            raise commands.CommandError("Guild does not have a blacklist.")
         mems = [str(ctx.guild.get_member(d)) for d in data]
         await ctx.send(
             embed=discord.Embed(
@@ -126,6 +126,63 @@ class Mods:
             await logging.send(embed=embed)
         await asyncio.sleep(2)
         self.bot.is_purging[ctx.channel.id] = False
+
+    @commands.command(
+        description="Warn a user for a certain thing.",
+        brief="Warn a user"
+    )
+    @commands.has_permissions(manage_guild=True)
+    async def warn(self, ctx, user: discord.Member, *, reason=None):
+        warns = await self.bot.db.fetchval("SELECT warns FROM warnings WHERE userid=$1 AND guildid=$2;",
+                                           user.id, ctx.guild.id)
+        if not warns:
+            warns = []
+            await self.bot.db.execute("INSERT INTO warnings VALUES ($1, $2, $3);", ctx.guild.id, user.id, [reason])
+        else:
+            await self.bot.db.execute("UPDATE warnings SET warns=$1 WHERE userid=$2 AND guildid=$3;",
+                                      warns+[reason], user.id, ctx.guild.id)
+        try:
+            await user.send(
+                embed=discord.Embed(
+                    color=discord.Color.blurple(),
+                    description=f"<:nano_exclamation:483063871360466945> You were warning in **{ctx.guild}**\n"
+                                f"Reason: **{reason or 'No reason specified'}**\n"
+                                f"Moderator: **{ctx.author}**\n"
+                                f"Total warnings: **{len(warns)+1}**"
+                )
+            )
+            dm = True
+        except discord.Forbidden:
+            dm = False
+        embed = discord.Embed(
+            color=discord.Color.blurple(),
+            description=f"<:nano_exclamation:483063871360466945> {user} has been warned.",
+        )
+        if not dm:
+            embed.set_footer(text="!! I could not DM the user. The warn was recorded anyway. !!")
+        await ctx.send(embed=embed, delete_after=10)
+        logging = await self.bot.get_logging_channel(ctx.guild)
+        if not logging:
+            return
+        embed = discord.Embed(
+            color=discord.Color.blurple(),
+            title=f"{user}",
+            timestamp=datetime.utcnow()
+        )
+        embed.set_author(
+            name="User was warned.",
+            icon_url=user.avatar_url_as(format="png")
+        )
+        embed.add_field(
+            name="Responsible Moderator",
+            value=f"{ctx.author}"
+        )
+        embed.add_field(
+            name="Reason",
+            value=f"{reason or 'None provided.'}"
+        )
+        embed.set_footer(text=f"DMed? {dm}")
+        await logging.send(embed=embed)
 
 
 def setup(bot):

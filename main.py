@@ -7,7 +7,7 @@ import json
 import git
 import asyncio
 
-JISHAKU_HIDE = 1
+HIDE_JISHAKU = 1
 
 # extensions = [f"cogs.{e.replace('.py','')}" for e in list(os.walk("./cogs"))[0][2] if e.endswith(".py")]
 extensions = [
