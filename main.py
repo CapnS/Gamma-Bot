@@ -35,7 +35,7 @@ class Bot(commands.Bot):
         self.db = self.loop.run_until_complete(asyncpg.create_pool(**cred))
         self.reboot = datetime.utcnow()
         self.official = False
-        self.session = aiohttp.ClientSession()
+        self.session = self.http._session
         self.syncdb_conn = psycopg2.connect(**cred)
         self.syncdb_conn.autocommit = True
         self.syncdb_cur = self.syncdb_conn.cursor()
