@@ -5,6 +5,7 @@ import asyncpg
 import psycopg2
 import json
 import git
+import asyncio
 
 JISHAKU_HIDE = 1
 
@@ -110,6 +111,15 @@ class Bot(commands.Bot):
         for userid in self.global_blacklist:
             await self.db.execute("INSERT INTO global_blacklist VALUES ($1);", userid)
 
+    async def presence_updater(self):
+        await self.wait_until_ready()
+        while not self.is_closed():
+            repo = git.Repo()
+            commit = repo.head.commit
+            await self.change_presence(activity=discord.Activity(name=f"commit {str(commit)[:7]}",
+                                                                 type=discord.ActivityType.listening))
+            await asyncio.sleep(1800)
+
     def run(self, token):
         for extension in extensions:
             try:
@@ -142,10 +152,7 @@ class Bot(commands.Bot):
     async def on_ready(self):
         # Officiality
         self.official = self.get_guild(483063756948111372) is not None
-        repo = git.Repo()
-        commit = repo.head.commit
-        await self.change_presence(activity=discord.Activity(name=f"commit {str(commit)[:7]}",
-                                                             type=discord.ActivityType.listening))
+        self.loop.create_task(self.presence_updater())
         print("Bot has connected.")
         print(f"Logged in as {self.user}")
         print(f"Total Guilds: {len(self.guilds)}")
