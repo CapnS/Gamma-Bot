@@ -305,6 +305,31 @@ class Bot(commands.Bot):
                 value=str(new)
             )
             await channel.send(embed=embed)
+        if old.roles != new.roles:
+            embed = discord.Embed(
+                color=discord.Color.blurple(),
+                timestamp=datetime.utcnow(),
+                title=f"{new}"
+            )
+            embed.set_author(
+                name="Users roles were updated.",
+                icon_url=new.avatar_url_as(format="png")
+            )
+            for role in old.roles:
+                if role not in new.roles:
+                    embed.add_field(
+                        name="Role Taken",
+                        value=f"{role.mention}"
+                    )
+            for role in new.roles:
+                if role not in old.roles:
+                    embed.add_field(
+                        name="Role Given",
+                        value=f"{role.mention}"
+                    )
+            await channel.send(embed=embed)
+
+
 
 
 if __name__ == "__main__":
