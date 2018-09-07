@@ -251,6 +251,61 @@ class Bot(commands.Bot):
         )
         await channel.send(embed=embed)
 
+    async def on_member_update(self, old, new):
+        channel = await self.get_logging_channel(new.guild)
+        if not channel:
+            return
+        if old.nick != new.nick:
+            embed = discord.Embed(
+                title=f"{new}",
+                timestamp=datetime.utcnow(),
+                color=discord.Color.blurple()
+            )
+            embed.set_author(
+                name="Members nickname was changed",
+                icon_url=new.avatar_url_as(format="png")
+            )
+            embed.add_field(
+                name="Before",
+                value=old.nick
+            )
+            embed.add_field(
+                name="After",
+                value=new.nick
+            )
+            await channel.send(embed=embed)
+        if old.avatar != new.avatar:
+            embed = discord.Embed(
+                color=discord.Color.blurple(),
+                title=f"{new}",
+                timestamp=datetime.utcnow()
+            )
+            embed.set_image(url=new.avatar_url_as(format="png"))
+            embed.set_thumbnail(url=old.avatar_url_as(format="png"))
+            embed.set_author(
+                name="Members avatar was updated.",
+                icon_url=new.avatar_url_as(format="png")
+            )
+            await channel.send(embed=embed)
+        if old.name != new.name or old.discriminator != new.discriminator:
+            embed = discord.Embed(
+                color=discord.Color.blurple(),
+                timestamp=datetime.utcnow()
+            )
+            embed.set_author(
+                name="Members name was changed",
+                icon_url=new.avatar_url_as(format="png")
+            )
+            embed.add_field(
+                name="Before",
+                value=str(old)
+            )
+            embed.add_field(
+                name="After",
+                value=str(new)
+            )
+            await channel.send(embed=embed)
+
 
 if __name__ == "__main__":
     Bot().run(config['betatoken'])
