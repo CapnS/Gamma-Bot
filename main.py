@@ -118,7 +118,7 @@ class Bot(commands.Bot):
             commit = repo.head.commit
             await self.change_presence(activity=discord.Activity(name=f"commit {str(commit)[:7]}",
                                                                  type=discord.ActivityType.listening))
-            await asyncio.sleep(1800)
+            await asyncio.sleep(600)
 
     def run(self, token):
         for extension in extensions:
