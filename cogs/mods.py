@@ -39,7 +39,7 @@ class Mods:
         try:
             data = self.bot.user_blacklist.get(ctx.guild.id)
         except KeyError:
-            raise discord.CommandError("Guild does not have a blacklist.")
+            raise discord.errors.CommandError("Guild does not have a blacklist.")
         mems = [str(ctx.guild.get_member(d)) for d in data]
         await ctx.send(
             embed=discord.Embed(
@@ -54,6 +54,8 @@ class Mods:
         description="Purge a set number of messages from a channel.",
         brief="Purge some messages."
     )
+    @commands.has_permissions(manage_messages=True)
+    @commands.bot_has_permissions(manage_messages=True)
     async def purge(self, ctx, amount: int, user: discord.Member=None):
         try:
             self.bot.is_purging[ctx.channel.id] = True
@@ -80,7 +82,7 @@ class Mods:
                 delete_after=3
             )
         await asyncio.sleep(2)
-        self.bot.is_purging[ctx.channel.i] = False
+        self.bot.is_purging[ctx.channel.id] = False
 
 
 def setup(bot):

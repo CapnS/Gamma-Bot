@@ -2,9 +2,10 @@ from discord.ext import commands
 from datetime import datetime
 import discord
 import asyncpg
-import aiohttp
 import psycopg2
 import json
+
+JISHAKU_HIDE = 1
 
 # extensions = [f"cogs.{e.replace('.py','')}" for e in list(os.walk("./cogs"))[0][2] if e.endswith(".py")]
 extensions = [
@@ -13,6 +14,7 @@ extensions = [
     'cogs.eco',
     'cogs.misc',
     'cogs.music',
+    'cogs.logging',
     # 'cogs.rpg',
     'cogs.mods',
     "jishaku"
@@ -43,6 +45,7 @@ class Bot(commands.Bot):
                                                                                       "WHERE userid IS NOT NULL;")}
         self.global_blacklist = [m['userid'] for m in self.psycopg2_fetch("SELECT userid FROM global_blacklist;")]
         self.is_purging = {}
+        self.logging_channels = []
 
     @staticmethod
     def clean_string(string):
