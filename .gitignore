@@ -1,6 +1,0 @@
-config/
-__pycache__/
-cogs/__pycache__/
-cogs/utils/__pycache__/
-.idea/
-,gitignore
