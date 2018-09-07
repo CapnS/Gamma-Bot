@@ -204,6 +204,8 @@ class Bot(commands.Bot):
         return guild.get_channel(data)
 
     async def on_message_delete(self, message):
+        if self.is_purging.get(message.channel.id):
+            return
         channel = await self.get_logging_channel(message.guild)
         if not channel:
             return

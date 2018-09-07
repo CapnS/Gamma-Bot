@@ -1,4 +1,5 @@
 from discord.ext import commands
+from datetime import datetime
 import discord
 import asyncio
 
@@ -82,6 +83,32 @@ class Mods:
                 delete_after=3
             )
         await asyncio.sleep(2)
+        logging = await self.bot.get_logging_channel(ctx.guild)
+        if logging:
+            amount = len(m)
+            embed = discord.Embed(
+                color=discord.Color.blurple(),
+                timestamp=datetime.utcnow(),
+                description=f"{ctx.channel.mention}"
+            )
+            embed.set_author(
+                name="Chat was purged",
+                icon_url=ctx.author.avatar_url_as(format="png")
+            )
+            embed.add_field(
+                name="Total messages deleted",
+                value=f"{amount}"
+            )
+            if user:
+                embed.add_field(
+                    name="Affected user",
+                    value=f"{user}"
+                )
+            embed.add_field(
+                name="Responsible Moderator",
+                value=f"{ctx.author}"
+            )
+            await logging.send(embed=embed)
         self.bot.is_purging[ctx.channel.id] = False
 
 
