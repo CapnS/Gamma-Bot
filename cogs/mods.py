@@ -20,15 +20,31 @@ class Mods:
         if user.id in self.bot.user_blacklist.get(ctx.guild.id):
             self.bot.user_blacklist[ctx.guild.id].remove(user.id)
             d = f"<:nano_check:484247886461403144> {user} is no longer blacklisted."
+            b = "white"
         else:
             self.bot.user_blacklist[ctx.guild.id].append(user.id)
             d = f"<:nano_check:484247886461403144> {user} is now blacklisted."
+            b = "black"
         await ctx.send(
             embed=discord.Embed(
                 color=discord.Color.blurple(),
                 description=d
             )
         )
+        logging = await self.bot.get_logging_channel(ctx.guild)
+        if not logging:
+            return
+        embed = discord.Embed(
+            color=discord.Color.blurple(),
+            title=f"{user}",
+            timestamp=datetime.utcnow(),
+            description=f"**Responsible Moderator**\n{ctx.author}"
+        )
+        embed.set_author(
+            name=f"User was {b}listed",
+            icon_url=user.avatar_url_as(format="png")
+        )
+        await logging.send(embed=embed)
 
     @commands.command(
         aliases=['vbl', 'viewblacklist'],
@@ -82,7 +98,6 @@ class Mods:
                 ),
                 delete_after=3
             )
-        await asyncio.sleep(2)
         logging = await self.bot.get_logging_channel(ctx.guild)
         if logging:
             amount = len(m)
@@ -109,6 +124,7 @@ class Mods:
                 value=f"{ctx.author}"
             )
             await logging.send(embed=embed)
+        await asyncio.sleep(2)
         self.bot.is_purging[ctx.channel.id] = False
 
 
