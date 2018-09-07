@@ -4,6 +4,7 @@ import discord
 import asyncpg
 import psycopg2
 import json
+import git
 
 JISHAKU_HIDE = 1
 
@@ -141,6 +142,10 @@ class Bot(commands.Bot):
     async def on_ready(self):
         # Officiality
         self.official = self.get_guild(483063756948111372) is not None
+        repo = git.Repo()
+        commit = repo.head.commit
+        await self.change_presence(activity=discord.Activity(name=f"commit {str(commit)[:7]}",
+                                                             type=discord.ActivityType.listening))
         print("Bot has connected.")
         print(f"Logged in as {self.user}")
         print(f"Total Guilds: {len(self.guilds)}")
