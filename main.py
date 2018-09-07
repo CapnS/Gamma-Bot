@@ -45,7 +45,6 @@ class Bot(commands.Bot):
                                                                                       "WHERE userid IS NOT NULL;")}
         self.global_blacklist = [m['userid'] for m in self.psycopg2_fetch("SELECT userid FROM global_blacklist;")]
         self.is_purging = {}
-        self.logging_channels = []
 
     @staticmethod
     def clean_string(string):
@@ -139,6 +138,7 @@ class Bot(commands.Bot):
         # print(ctx.secret)
     
     async def on_ready(self):
+        # Officiality
         self.official = self.get_guild(483063756948111372) is not None
         print("Bot has connected.")
         print(f"Logged in as {self.user}")
@@ -183,6 +183,31 @@ class Bot(commands.Bot):
                               description=f"<:nano_exclamation:483063871360466945> {nexc}")
         embed.set_footer(text=f"Debug: {type(exc).__name__}")
         await ctx.send(embed=embed)
+
+    async def get_logging_channel(self, guild):
+        data = await self.db.fetchval("SELECT channelid FROM logging WHERE guildid=$1;", guild.id)
+        if not data: return
+        return guild.get_channel(data)
+
+    async def on_message_delete(self, message):
+        channel = await self.get_logging_channel(message.guild)
+        if not channel:
+            return
+        embed = discord.Embed(
+            color=discord.Color.blurple(),
+            title=f"{message.author}",
+            description=f"{message.channel.mention}",
+            timestamp=message.created_at
+        )
+        embed.set_author(
+            name="Message was deleted",
+            icon_url=message.author.avatar_url_as(format="png")
+        )
+        embed.add_field(
+            name="Content",
+            value=message.content
+        )
+        await channel.send(embed=embed)
 
 
 if __name__ == "__main__":

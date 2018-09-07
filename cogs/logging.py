@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord.ext.commands import CommandError
 from asyncio import TimeoutError
 import discord
 
@@ -15,7 +16,7 @@ class Logging:
     async def logging_new(self, ctx, *, channel: discord.TextChannel=None):
         channel = channel or ctx.channel
         if channel.id in self.bot.logging_channels:
-            raise discord.CommandError("This guild already has a logging channel.")
+            raise CommandError("This guild already has a logging channel.")
         m = await ctx.send(
             embed=discord.Embed(
                 color=discord.Color.blurple(),
@@ -35,7 +36,7 @@ class Logging:
             return
         else:
             await m.delete()
-            await self.bot.db.execute("INSERT INTO logging VALUES ($1);", channel.id)
+            await self.bot.db.execute("INSERT INTO logging VALUES ($1, $2);", channel.id, channel.guild.id)
             self.bot.logging_channels.append(channel.id)
             await ctx.send(
                 embed=discord.Embed(
