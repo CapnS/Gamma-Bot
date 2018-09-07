@@ -219,7 +219,7 @@ class Bot(commands.Bot):
         )
         embed.set_author(
             name="Message was deleted",
-            icon_url=message.author.avatar_url_as(format="png")
+            icon_url=message.author.avatar_url_as(static_format="png")
         )
         embed.add_field(
             name="Content",
@@ -241,7 +241,7 @@ class Bot(commands.Bot):
         )
         embed.set_author(
             name="Message was edited",
-            icon_url=new.author.avatar_url_as(format="png")
+            icon_url=new.author.avatar_url_as(static_format="png")
         )
         embed.add_field(
             name="Before",
@@ -265,7 +265,7 @@ class Bot(commands.Bot):
             )
             embed.set_author(
                 name="Members nickname was changed",
-                icon_url=new.avatar_url_as(format="png")
+                icon_url=new.avatar_url_as(static_format="png")
             )
             embed.add_field(
                 name="Before",
@@ -282,11 +282,11 @@ class Bot(commands.Bot):
                 title=f"{new}",
                 timestamp=datetime.utcnow()
             )
-            embed.set_image(url=new.avatar_url_as(format="png"))
-            embed.set_thumbnail(url=old.avatar_url_as(format="png"))
+            embed.set_image(url=new.avatar_url_as(static_format="png"))
+            embed.set_thumbnail(url=old.avatar_url_as(static_format="png"))
             embed.set_author(
                 name="Members avatar was updated.",
-                icon_url=new.avatar_url_as(format="png")
+                icon_url=new.avatar_url_as(static_format="png")
             )
             await channel.send(embed=embed)
         if old.name != new.name or old.discriminator != new.discriminator:
@@ -296,7 +296,7 @@ class Bot(commands.Bot):
             )
             embed.set_author(
                 name="Members name was changed",
-                icon_url=new.avatar_url_as(format="png")
+                icon_url=new.avatar_url_as(static_format="png")
             )
             embed.add_field(
                 name="Before",
@@ -315,7 +315,7 @@ class Bot(commands.Bot):
             )
             embed.set_author(
                 name="Users roles were updated",
-                icon_url=new.avatar_url_as(format="png")
+                icon_url=new.avatar_url_as(static_format="png")
             )
             for role in old.roles:
                 if role not in new.roles:
@@ -342,9 +342,9 @@ class Bot(commands.Bot):
         )
         embed.set_author(
             name="Member left the server",
-            icon_url=member.avatar_url_as(format="png")
+            icon_url=member.avatar_url_as(static_format="png")
         )
-        embed.set_thumbnail(url=member.avatar_url_as(format="png"))
+        embed.set_thumbnail(url=member.avatar_url_as(static_format="png"))
         await channel.send(embed=embed)
 
     async def on_member_join(self, member):
@@ -358,9 +358,9 @@ class Bot(commands.Bot):
         )
         embed.set_author(
             name="User joined the server",
-            icon_url=member.avatar_url_as(format="png")
+            icon_url=member.avatar_url_as(static_format="png")
         )
-        embed.set_thumbnail(url=member.avatar_url_as(format="png"))
+        embed.set_thumbnail(url=member.avatar_url_as(static_format="png"))
         await channel.send(embed=embed)
 
 

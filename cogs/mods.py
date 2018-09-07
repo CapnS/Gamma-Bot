@@ -42,7 +42,7 @@ class Mods:
         )
         embed.set_author(
             name=f"User was {b}listed",
-            icon_url=user.avatar_url_as(format="png")
+            icon_url=user.avatar_url_as(static_format="png")
         )
         await logging.send(embed=embed)
 
@@ -108,7 +108,7 @@ class Mods:
             )
             embed.set_author(
                 name="Chat was purged",
-                icon_url=ctx.author.avatar_url_as(format="png")
+                icon_url=ctx.author.avatar_url_as(static_format="png")
             )
             embed.add_field(
                 name="Total messages deleted",
@@ -171,7 +171,7 @@ class Mods:
         )
         embed.set_author(
             name="User was warned.",
-            icon_url=user.avatar_url_as(format="png")
+            icon_url=user.avatar_url_as(static_format="png")
         )
         embed.add_field(
             name="Responsible Moderator",
@@ -183,6 +183,58 @@ class Mods:
         )
         embed.set_footer(text=f"DMed? {dm}")
         await logging.send(embed=embed)
+
+    @commands.command(
+        description="View warns for a specific user, or yourself.",
+        brief="View warnings for a user."
+    )
+    async def warns(self, ctx, *, user: discord.Member=None):
+        if not user or user == ctx.author:
+            embed = discord.Embed(
+                color=discord.Color.blurple(),
+                title=f"{ctx.author}"
+            )
+            warns = await self.bot.db.fetchval("SELECT warns FROM warnings WHERE userid=$1 AND guildid=$2;",
+                                               ctx.author.id, ctx.guild.id)
+            embed.set_author(
+                name="User warnings",
+                icon_url=ctx.author.avatar_url_as(static_format="png")
+            )
+            if warns:
+                embed.add_field(
+                    name=f"Total warnings: {len(warns)}",
+                    value="- "+"\n- ".join(warns)
+                )
+            else:
+                embed.add_field(
+                    name="All warnings: 0",
+                    value="No warnings for this guild."
+                )
+            await ctx.send(embed=embed)
+            return
+        if not ctx.author.guild_permissions.manage_messages:
+            assert False, "Invalid permissions."
+        warns = await self.bot.db.fetchval("SELECT warns FROM warnings WHERE userid=$1 AND guildid=$2;",
+                                           user.id, ctx.guild.id)
+        embed = discord.Embed(
+            title=f"{user}",
+            color=discord.Color.blurple(),
+        )
+        embed.set_author(
+            name="User warnings",
+            icon_url=user.avatar_url_as(static_format="png")
+        )
+        if warns:
+            embed.add_field(
+                name=f"All warnings: {len(warns)}",
+                value="- "+"\n- ".join(warns)
+            )
+        else:
+            embed.add_field(
+                name="All warnings: 0",
+                value="No warnings for this guild."
+            )
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
