@@ -150,7 +150,7 @@ class Economy:
         assert bal is not None, f"{user} doesn't have an account!'"
         assert balance >= amount, "You don't have enough money!"
         await self.bot.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", amount, user.id)
-        await self.bot.db.execute("UPDATE economy SET balance=balance-$1 WHERE userid=$2;", amount, user.id)
+        await self.bot.db.execute("UPDATE economy SET balance=balance-$1 WHERE userid=$2;", amount, ctx.author.id)
         await ctx.send(
             embed=discord.Embed(
                 color=discord.Color.blurple(),
