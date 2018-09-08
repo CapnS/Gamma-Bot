@@ -37,7 +37,6 @@ class Logging:
         else:
             await m.delete()
             await self.bot.db.execute("INSERT INTO logging VALUES ($1, $2);", channel.id, channel.guild.id)
-            self.bot.logging_channels.append(channel.id)
             await ctx.send(
                 embed=discord.Embed(
                     color=discord.Color.blurple(),

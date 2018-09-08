@@ -121,6 +121,16 @@ class Bot(commands.Bot):
                                                                  type=discord.ActivityType.listening))
             await asyncio.sleep(600)
 
+    @staticmethod
+    def higher_role(alpha, beta):
+        if alpha.guild.owner == alpha:
+            return True
+        if beta.guild.owner == beta:
+            return False
+        if alpha.guild.me.top_role.position > beta.top_role.position:
+            return alpha.top_role.position > beta.top_role.position
+        return False
+
     def run(self, token):
         for extension in extensions:
             try:

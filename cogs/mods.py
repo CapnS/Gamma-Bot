@@ -12,6 +12,8 @@ class Mods:
     def __init__(self, bot):
         self.bot = bot
 
+    # Blacklisting related commands
+
     @commands.command(
         aliases=['bl', 'toggle'],
         description="Blacklist a certain user from using any of my commands.",
@@ -69,6 +71,8 @@ class Mods:
                 title=f"{ctx.guild} blacklist"
             ).set_footer(text="Note: Ignores Xua#9307 and anyone with Administrator permissions")
         )
+
+    # Message management
 
     @commands.command(
         aliases=['prune', 'clear'],
@@ -130,6 +134,8 @@ class Mods:
             await logging.send(embed=embed)
         await asyncio.sleep(2)
         self.bot.is_purging[ctx.channel.id] = False
+
+    # Warning related commands
 
     @commands.group(
         description="Warn a user for a certain thing.",
@@ -326,6 +332,143 @@ class Mods:
             value=f"{len(warns)}"
         )
         await channel.send(embed=embed)
+
+    # Member removal
+
+    @commands.command(
+        description="Kick a member from the guild, with optional reasoning.",
+        brief="Kick a member from the guild."
+    )
+    @commands.has_permissions(kick_members=True)
+    @commands.bot_has_permissions(kick_members=True)
+    async def kick(self, ctx, user: discord.Member, *, reason="No reason specified."):
+        assert self.bot.higher_role(ctx.author, user), "Invalid Permissions."
+        try:
+            await user.send(
+                embed=discord.Embed(
+                    color=discord.Color.blurple(),
+                    timestamp=datetime.utcnow(),
+                    description=f"""You were kicked from **{ctx.guild}**
+Responsible Moderator: **{ctx.author}**
+Reason: ```{reason}```,
+"""
+                )
+            )
+            dm = True
+        except discord.Forbidden:
+            dm = False
+        await user.kick(reason=reason)
+        await ctx.send(
+            delete_after=5,
+            embed=discord.Embed(
+                color=discord.Color.blurple(),
+                description=f"<:nano_check:484247886461403144> {user} was kicked."
+            )
+        )
+        channel = await self.bot.get_logging_channel(ctx.guild)
+        if not channel:
+            return
+        embed = discord.Embed(
+            color=discord.Color.blurple(),
+            title=f"{user}",
+            timestamp=datetime.utcnow()
+        )
+        embed.set_author(
+            name="User was kicked.",
+            icon_url=user.avatar_url_as(static_format="png")
+        )
+        embed.add_field(
+            name="Responsible Moderator",
+            value=f"{ctx.author}",
+            inline=False
+        )
+        embed.add_field(
+            name="Reason",
+            value=f"```\n{reason}\n```",
+            inline=False
+        )
+        embed.set_footer(
+            text=f"DMed user? {dm}"
+        )
+        await channel.send(embed=embed)
+
+    @commands.command(
+        description="Ban a member from the guild, with optional reasoning.",
+        brief="Ban a mamber from the guild."
+    )
+    @commands.has_permissions(ban_members=True)
+    @commands.bot_has_permissions(ban_members=True)
+    async def ban(self, ctx, user: discord.Member, *, reason="No reason specified."):
+        assert self.bot.higher_role(ctx.author, user), "Invalid permissions."
+        try:
+            await user.send(
+                embed=discord.Embed(
+                    color=discord.Color.blurple(),
+                    description=f"""You were banned from **{ctx.guild}**
+Responsible Moderator: **{ctx.author}**
+Reason: ```\n{reason}\n```""",
+                    timestamp=datetime.utcnow()
+                )
+            )
+            dm = True
+        except discord.Forbidden:
+            dm = False
+        await user.ban(reason=reason, delete_message_days=7)
+        await ctx.send(
+            embed=discord.Embed(
+                color=discord.Color.blurple(),
+                description=f"<:nano_check:484247886461403144> {user} was banned."
+            ),
+            delete_after=5
+        )
+        channel = await self.bot.get_logging_channel(ctx.guild)
+        if not channel:
+            return
+        embed = discord.Embed(
+            color=discord.Color.blurple(),
+            title=f"{user}",
+            timestamp=datetime.utcnow()
+        )
+        embed.set_author(
+            name="User was banned",
+            icon_url=user.avatar_url_as(static_format="png")
+        )
+        embed.add_field(
+            name="Responsible Moderator",
+            value=f"{ctx.author}",
+            inline=False
+        )
+        embed.add_field(
+            name="Reason",
+            value=f"```\n{reason}\n```"
+        )
+        embed.set_footer(
+            text=f"DMed user? {dm}"
+        )
+        await channel.send(embed=embed)
+
+    @commands.command(
+        description="Kick a user from the guild, and delete their messages. Reason optional.",
+        brief="Kick a user and delete their messages."
+    )
+    @commands.has_permissions(kick_members=True)
+    @commands.bot_has_permissions(ban_members=True, unban_members=True)
+    async def softban(self, ctx, user: discord.Member, *, reason="No reason specified."):
+        assert self.bot.higher_role(ctx.author, user), "Invalid permissions."
+        try:
+            await user.send(
+                embed=discord.Embed(
+                    color=discord.Color.blurple(),
+                    timestamp=datetime.utcnow(),
+                    description=f"""You were kicked from **{ctx.guild}**
+Responsible Moderator: **{ctx.author}**
+Reason: ```\n{reason}\n```"""
+                )
+            )
+            dm = True
+        except discord.Forbidden:
+            dm = False
+        await 
 
 
 def setup(bot):
