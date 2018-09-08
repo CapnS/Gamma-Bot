@@ -96,7 +96,7 @@ class Economy:
                 )
             )
         else:
-            await self.bot.db.execute("UPDATE economy SET balance=balance-$1 WHERE userid=$1;", amount, ctx.author.id)
+            await self.bot.db.execute("UPDATE economy SET balance=balance-$1 WHERE userid=$2;", amount, ctx.author.id)
             await ctx.send(
                 embed=discord.Embed(
                     color=discord.Color.blurple(),
