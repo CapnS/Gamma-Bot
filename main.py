@@ -139,7 +139,7 @@ class Bot(commands.AutoShardedBot):
                    id=(await self.db.fetchval("SELECT roleid FROM muted_roles WHERE guildid=$1;", guild.id)))
 
     async def get_pref(self, bot, message):
-        return await self.db.fetchval("SELECT prefix FROM prefixes WHERE guildid=$1;", message.guild.id) or "gb!"
+        return await self.db.fetchval("SELECT prefix FROM prefixes WHERE guildid=$1;", message.guild.id) or "~"
 
     def run(self, token):
         for extension in extensions:
