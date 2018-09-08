@@ -89,7 +89,7 @@ class Mods:
         if user:
             def check(message):
                 return message.author == user
-            m = await ctx.channel.purge(limit=amount, check=check)
+            m = await ctx.channel.purge(limit=amount+1, check=check)
             await ctx.send(
                 embed=discord.Embed(
                     color=discord.Color.blurple(),
