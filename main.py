@@ -391,4 +391,4 @@ class Bot(commands.AutoShardedBot):
 
 
 if __name__ == "__main__":
-    Bot().run(config['betatoken'])
+    Bot().run(config['token'])
