@@ -217,8 +217,10 @@ class Bot(commands.Bot):
         embed = discord.Embed(color=discord.Color.blurple(), 
                               description=f"<:nano_exclamation:483063871360466945> {nexc}")
         if self.debug:
+            import traceback
             embed.set_footer(text=f"Debug: {type(exc).__name__}")
-            print(f"{type(exc).__name__} -> {exc}")
+            #  print(f"{type(exc).__name__} -> {exc}")
+            traceback.print_exception(type(exc), exc, exc.__traceback__)
         await ctx.send(embed=embed)
 
     async def get_logging_channel(self, guild):

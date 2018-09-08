@@ -129,7 +129,7 @@ class SimplePaginator:
                 self.pages.append(page)
 
         if not self.pages:
-            raise utils.EvieeBaseException('There must be enough data to create at least 1 page for pagination.')
+            raise ValueError('There must be enough data to create at least 1 page for pagination.')
 
         self.eof = float(len(self.pages) - 1)
         self.controls['⏭'] = self.eof

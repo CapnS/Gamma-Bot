@@ -77,6 +77,31 @@ class Economy:
             )
             await self.bot.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", total, ctx.author.id)
 
+    @commands.command(
+        description="View the leaderboard, whether its global or local.",
+        brief="View the leaderboard.",
+        aliases=['lb']
+    )
+    async def leaderboard(self, ctx, mode="local"):
+        mode = mode.lower()
+        assert mode == 'local' or mode == 'global', "Invalid leaderboard type."
+        users = await self.bot.db.fetch("SELECT * FROM economy ORDER BY balance DESC;")
+        if mode == 'local':
+            mems = {users[u]['userid']: users[u]['balance'] for u in range(min(len(users), 10))
+                    if ctx.guild.get_member(users[u]['userid']) is not None}
+        else:
+            mems = {users[u]['userid']: users[u]['balance'] for u in range(min(len(users), 10))
+                    if self.bot.get_user(users[u]['userid'] is not None)}
+        await ctx.send(
+            embed=discord.Embed(
+                title=f"{ctx.guild} Leaderboard" if mode == 'local' else "Global Leaderboard",
+                color=discord.Color.blurple(),
+                description="\n".join([f"{a+1}. {self.bot.get_user(b)}: ${c}" for a, b, c in zip(range(len(mems)),
+                                                                                                 mems.keys(),
+                                                                                                 mems.values())])
+            )
+        )
+
 
 def setup(bot):
     bot.add_cog(Economy(bot))
