@@ -38,7 +38,7 @@ class Tags:
     async def create(self, ctx, name, *, response):
         tag = await self.bot.db.fetchval("SELECT response FROM tags WHERE name=$1 AND guildid=$2;", name, ctx.guild.id)
         assert tag is None, "Tag by that name already exists."
-        assert not tag.lower().startswith(('all', 'create', 'delete', 'edit', 'list', 'info')), "Tag starts with" \
+        assert not name.lower().startswith(('all', 'create', 'delete', 'edit', 'list', 'info')), "Tag starts with" \
                                                                                                 "a keyword."
         query = "INSERT INTO tags VALUES ($1, $2, $3, $4, 0, $5);"
         await self.bot.db.execute(query, ctx.guild.id, ctx.author.id, name, response, datetime.utcnow())
