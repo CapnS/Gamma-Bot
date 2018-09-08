@@ -32,6 +32,7 @@ class Settings:
         description="Change the current server wide prefix.",
         brief="Change the server wide prefix."
     )
+    @commands.has_permissions(manage_guild=True)
     async def prefix(self, ctx, *, prefix):
         old = await self.bot.db.fetchval("SELECT prefix FROM prefixes WHERE guildid=$1;", ctx.guild.id)
         if not old:
@@ -57,6 +58,7 @@ class Settings:
                     "overwrites for this role. Removing the role will also clear the overwrites. Use with caution.",
         brief="Change the current muted role."
     )
+    @commands.has_permissions(manage_guild=True)
     async def muted(self, ctx, *, role: discord.Role):
         old = await self.bot.db.fetchval("SELECT roleid FROM muted_roles WHERE guildid=$1;", ctx.guild.id)
         if not old:
