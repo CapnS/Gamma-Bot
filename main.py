@@ -38,7 +38,7 @@ class CustomContext(commands.Context):
 class Bot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=self.get_pref, desc="Zeta")
-        cred = {"user": "gammabeta", "password": "gamma", "database": "gammabeta", "host": "127.0.0.1"}
+        cred = {"user": "gammabot", "password": "gamma", "database": "gammabot", "host": "127.0.0.1"}
         self.db = self.loop.run_until_complete(asyncpg.create_pool(**cred))
         self.reboot = datetime.utcnow()
         self.official = False
