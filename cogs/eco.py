@@ -145,9 +145,9 @@ class Economy:
     )
     async def transfer(self, ctx, user: discord.Member, amount: int):
         balance = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", ctx.author.id)
-        bal = await self.bot.db.fetchvak("SELECT balance FROM economy WHERE userid=$1;", user.id)
+        bal = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", user.id)
         assert balance is not None, "You don't have any money!"
-        assert bal is not NOne, f"{user} doesn't have an account!'"
+        assert bal is not None, f"{user} doesn't have an account!'"
         assert balance >= amount, "You don't have enough money!"
         await self.bot.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", amount, user.id)
         await self.bot.db.execute("UPDATE economy SET balance=balance-$1 WHERE userid=$2;", amount, user.id)
