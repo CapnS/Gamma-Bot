@@ -10,7 +10,7 @@ import asyncio
 
 HIDE_JISHAKU = 1
 
-BETA = False
+BETA = True
 
 # extensions = [f"cogs.{e.replace('.py','')}" for e in list(os.walk("./cogs"))[0][2] if e.endswith(".py")]
 extensions = [
