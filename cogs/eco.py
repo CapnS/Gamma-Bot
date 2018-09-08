@@ -85,7 +85,7 @@ class Economy:
     async def don(self, ctx, amount: int):
         bal = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", ctx.author.id)
         assert bal is not None, "You don't have any money!"
-        assert bal => amount, "You don't have enough money!"
+        assert bal >= amount, "You don't have enough money!"
         yes = random.choice([True, False])
         if yes:
             await self.bot.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", amount, ctx.author.id)
