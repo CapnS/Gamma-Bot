@@ -102,7 +102,7 @@ class Misc:
 <:nano_people:483063870739709983> Users: **{len(users)}** Online
 <:nano_cpu:483063870693310485> CPU Usage: **{process.cpu_percent()}%**
 <:nano_task:483063870827659275> Memory Usage (MB): **{int(process.memory_info()[0]/1024/1024)}MB**
-<:nano_chart:483063870433263637> Memory Usage (%): **{int((int(process.memory_info()[0]/1024/1024)/150)*100)}%**
+<:nano_chart:483063870433263637> Memory Usage (%): **{int((int(process.memory_info()[0]/1024/1024)/750)*100)}%**
 <:nano_exclamation:483063871360466945> Commands: **{cmds}**
 <:nano_gear:483063870538252288> Cogs: **{len(self.bot.cogs)}**
 """
