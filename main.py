@@ -1,5 +1,6 @@
 from discord.ext import commands
 from datetime import datetime
+from discord.utils import get
 import discord
 import asyncpg
 import psycopg2
@@ -19,6 +20,7 @@ extensions = [
     'cogs.logging',
     # 'cogs.rpg',
     'cogs.mods',
+    'cogs.settings',
     "jishaku"
 ]
 
@@ -34,7 +36,7 @@ class CustomContext(commands.Context):
 
 class Bot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix="gb!", desc="Zeta")
+        super().__init__(command_prefix=self.get_pref, desc="Zeta")
         cred = {"user": "gammabeta", "password": "gamma", "database": "gammabeta", "host": "127.0.0.1"}
         self.db = self.loop.run_until_complete(asyncpg.create_pool(**cred))
         self.reboot = datetime.utcnow()
@@ -131,6 +133,18 @@ class Bot(commands.Bot):
             return alpha.top_role.position > beta.top_role.position
         return False
 
+    async def get_muted_role(self, guild):
+        _id = await self.db.fetchval("SELECT roleid FROM muted_roles WHERE guildid=$1;", guild.id)
+        if not _id:
+            return
+        role = get(guild.roles, id=_id)
+        if not role:
+            return
+        return role
+
+    async def get_pref(self, bot, message):
+        return await self.db.fetchval("SELECT prefix FROM prefixes WHERE guildid=$1;", message.guild.id) or "gb!"
+
     def run(self, token):
         for extension in extensions:
             try:
@@ -156,6 +170,9 @@ class Bot(commands.Bot):
                 return
         except KeyError:
             pass
+        if message.content == "<@478437101122224128>" or message.content == "<@481730556380577793>":
+            await message.channel.send("My prefix here is `gb!`. Use `gb!help` for a list of commands.")
+            return
         ctx = await self.get_context(message, cls=CustomContext)
         await self.invoke(ctx)
         # print(ctx.secret)

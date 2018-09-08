@@ -494,6 +494,51 @@ Reason: ```\n{reason}\n```"""
         )
         await channel.send(embed=embed)
 
+    # Member muting / unmuting commands
+    # NOTE: timers wont be available until
+    # i get a dedicated vps
+
+    @commands.command(
+        description="Mute a member from typing in chat and speaking in voice channels.",
+        brief="Mute a member."
+    )
+    @commands.has_permissions(mute_members=True)
+    @commands.bot_has_permissions(manage_channels=True)
+    async def mute(self, ctx, user: discord.Member, *, reason="No reason specified."):
+        assert self.bot.higher_role(ctx.author, user), "Invalid permissions."
+        role = await self.bot.get_muted_role(ctx.guild)
+        assert role is not None, "Guild has no muted role specified."
+        await user.add_role([role])
+        await ctx.send(
+            embed=discord.Embed(
+                color=discord.Color.blurple(),
+                description=f"<:nano_check:484247886461403144> {user} was muted."
+            ),
+            delete_after=5
+        )
+        channel = self.bot.get_logging_channel(ctx.guild)
+        if not channel:
+            return
+        embed = discord.Embed(
+            color=discord.Color.blurple(),
+            title=f"{user}",
+            timestamp=datetime.utcnow()
+        )
+        embed.set_author(
+            name="Member was muted",
+            icon_url=user.avatar_url_as(static_format="png")
+        )
+        embed.add_field(
+            name="Responsible Moderator",
+            value=f"{ctx.author}",
+            inline=False
+        )
+        embed.add_field(
+            name="Reason",
+            value=f"```\n{reason}\n```"
+        )
+        await channel.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Mods(bot))
