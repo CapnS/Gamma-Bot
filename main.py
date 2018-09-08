@@ -10,6 +10,8 @@ import asyncio
 
 HIDE_JISHAKU = 1
 
+BETA = False
+
 # extensions = [f"cogs.{e.replace('.py','')}" for e in list(os.walk("./cogs"))[0][2] if e.endswith(".py")]
 extensions = [
     # 'cogs.autoresponder',
@@ -38,7 +40,10 @@ class CustomContext(commands.Context):
 class Bot(commands.AutoShardedBot):
     def __init__(self):
         super().__init__(command_prefix=self.get_pref, desc="Zeta")
-        cred = {"user": "gammabot", "password": "gamma", "database": "gammabot", "host": "127.0.0.1"}
+        if not BETA:
+            cred = {"user": "gammabot", "password": "gamma", "database": "gammabot", "host": "127.0.0.1"}
+        else:
+            cred = {"user": "gammabeta", "password": "gamma", "database": "gammabeta", "host": "127.0.0.1"}
         self.db = self.loop.run_until_complete(asyncpg.create_pool(**cred))
         self.reboot = datetime.utcnow()
         self.official = False
@@ -50,7 +55,7 @@ class Bot(commands.AutoShardedBot):
                                                                                       "WHERE userid IS NOT NULL;")}
         self.global_blacklist = [m['userid'] for m in self.psycopg2_fetch("SELECT userid FROM global_blacklist;")]
         self.is_purging = {}
-        self.debug = True
+        self.debug = BETA
 
     @staticmethod
     def clean_string(string):
@@ -139,7 +144,7 @@ class Bot(commands.AutoShardedBot):
                    id=(await self.db.fetchval("SELECT roleid FROM muted_roles WHERE guildid=$1;", guild.id)))
 
     async def get_pref(self, bot, message):
-        return await self.db.fetchval("SELECT prefix FROM prefixes WHERE guildid=$1;", message.guild.id) or "~"
+        return await self.db.fetchval("SELECT prefix FROM prefixes WHERE guildid=$1;", message.guild.id) or "gb!"
 
     def run(self, token):
         for extension in extensions:
@@ -391,4 +396,7 @@ class Bot(commands.AutoShardedBot):
 
 
 if __name__ == "__main__":
-    Bot().run(config['token'])
+    if BETA:
+        Bot().run(config['betatoken'])
+    else:
+        Bot().run(config['token'])
