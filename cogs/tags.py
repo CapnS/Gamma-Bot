@@ -28,7 +28,8 @@ class Tags:
     )
     async def tag(self, ctx, *, tag):
         tag = await self.get_tag(ctx, tag)
-        await self.bot.db.execute("UPDATE tags SET uses=uses+1 WHERE name=$1 AND guildid=$2;", tag, ctx.guild.id)
+        await self.bot.db.execute("UPDATE tags SET uses=uses+1 WHERE name=$1 AND guildid=$2;",
+                                  tag['name'], ctx.guild.id)
         await ctx.send(tag['response'])
 
     @tag.command(
@@ -74,7 +75,7 @@ class Tags:
         owner = await self.bot.db.fetchval("SELECT ownerid FROM tags WHERE name=$1 AND guildid=$2;", name, ctx.guild.id)
         assert owner is not None, "tag by that name does not exist."
         assert ctx.guild.get_member(owner) is ctx.author, "You do not own this tag."
-        await self.bot.db.execute("DELETE FROM tags WHERE guildid=$1 AND name=$1;", ctx.guild.id, name)
+        await self.bot.db.execute("DELETE FROM tags WHERE guildid=$1 AND name=$2;", ctx.guild.id, name)
         await ctx.send(
             embed=discord.Embed(
                 color=discord.Color.blurple(),
