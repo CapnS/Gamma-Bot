@@ -35,7 +35,7 @@ class CustomContext(commands.Context):
         return "sneak"
 
 
-class Bot(commands.Bot):
+class Bot(commands.AutoShardedBot):
     def __init__(self):
         super().__init__(command_prefix=self.get_pref, desc="Zeta")
         cred = {"user": "gammabot", "password": "gamma", "database": "gammabot", "host": "127.0.0.1"}
