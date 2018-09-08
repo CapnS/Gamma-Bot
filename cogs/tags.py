@@ -89,7 +89,7 @@ class Tags:
     )
     async def all(self, ctx):
         tags = await self.bot.db.fetch("SELECT * FROM tags WHERE guildid=$1 ORDER BY uses DESC;", ctx.guild.id)
-        assert not tags, "There are no tags for this guild."
+        assert tags, "There are no tags for this guild."
         l = [f"{_+1}. {tags[_]['name']}" for _ in range(len(tags))]
         await SimplePaginator(entries=l, colour=0x7289da, title=f"{ctx.guild} tags", length=20).paginate(ctx)
 
@@ -101,7 +101,6 @@ class Tags:
         user = user or ctx.author
         tags = await self.bot.db.fetch("SELECT * FROM tags WHERE guildid=$1 AND ownerid=$2 ORDER BY uses DESC;",
                                        ctx.guild.id, user.id)
-        print(tags)
         assert tags is not None, f"{user} has no tags."
         l = [f"{_+1}. {tags[_]['name']}" for _ in range(len(tags))]
         await SimplePaginator(entries=l, colour=0x7289da, title=f"Tags for {user}", length=20).paginate(ctx)
