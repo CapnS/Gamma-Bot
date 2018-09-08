@@ -104,7 +104,7 @@ class Economy:
 
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def baladd(self, ctx, amount: int, user: discord.Member=None):
+    async def baladjust(self, ctx, amount: int, user: discord.Member=None):
         await self.bot.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", amount, user.id)
         await ctx.send("\U0001f44c")
 
