@@ -452,7 +452,7 @@ Reason: ```\n{reason}\n```""",
         brief="Kick a user and delete their messages."
     )
     @commands.has_permissions(kick_members=True)
-    @commands.bot_has_permissions(ban_members=True, unban_members=True)
+    @commands.bot_has_permissions(ban_members=True)
     async def softban(self, ctx, user: discord.Member, *, reason="No reason specified."):
         assert self.bot.higher_role(ctx.author, user), "Invalid permissions."
         try:
@@ -468,7 +468,31 @@ Reason: ```\n{reason}\n```"""
             dm = True
         except discord.Forbidden:
             dm = False
-        await 
+        await user.ban(reason=reason, delete_message_days=7)
+        await user.unban()
+        await ctx.send(
+            embed=discord.Embed(
+                color=discord.Color.blurple(),
+                description=f"<:nano_check:484247886461403144> {user} was kicked."
+            ),
+            delete_after=5
+        )
+        channel = await self.bot.get_logging_channel(ctx.guild)
+        if not channel:
+            return
+        embed = discord.Embed(
+            color=discord.Color.blurple(),
+            title=f"{user}",
+            timestamp=datetime.utcnow()
+        )
+        embed.set_author(
+            name="User was kicked",
+            icon_url=user.avatar_url_as(static_format="png")
+        )
+        embed.set_footer(
+            text=f"DMed user? {dm}"
+        )
+        await channel.send(embed=embed)
 
 
 def setup(bot):
