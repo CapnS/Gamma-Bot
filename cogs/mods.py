@@ -502,13 +502,14 @@ Reason: ```\n{reason}\n```"""
         description="Mute a member from typing in chat and speaking in voice channels.",
         brief="Mute a member."
     )
-    @commands.has_permissions(mute_members=True)
-    @commands.bot_has_permissions(manage_channels=True)
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
     async def mute(self, ctx, user: discord.Member, *, reason="No reason specified."):
         assert self.bot.higher_role(ctx.author, user), "Invalid permissions."
         role = await self.bot.get_muted_role(ctx.guild)
         assert role is not None, "Guild has no muted role specified."
-        await user.add_role([role])
+        assert role not in user.roles, "User is already muted."
+        await user.add_roles(role)
         await ctx.send(
             embed=discord.Embed(
                 color=discord.Color.blurple(),
@@ -516,7 +517,7 @@ Reason: ```\n{reason}\n```"""
             ),
             delete_after=5
         )
-        channel = self.bot.get_logging_channel(ctx.guild)
+        channel = await self.bot.get_logging_channel(ctx.guild)
         if not channel:
             return
         embed = discord.Embed(
@@ -536,6 +537,43 @@ Reason: ```\n{reason}\n```"""
         embed.add_field(
             name="Reason",
             value=f"```\n{reason}\n```"
+        )
+        await channel.send(embed=embed)
+
+    @commands.command(
+        description="Unmute a user, allowing them to type in chat and speak in voice.",
+        brief="Unmute a user."
+    )
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
+    async def unmute(self, ctx, *, user: discord.Member):
+        assert self.bot.higher_role(ctx.author, user), "Invalid Permissions."
+        role = await self.bot.get_muted_role(ctx.guild)
+        assert role is not None, "Guild does not have a muted role."
+        assert role in user.roles, "User is not muted."
+        await user.remove_roles(role)
+        await ctx.send(
+            embed=discord.Embed(
+                color=discord.Color.blurple(),
+                description=f"<:nano_check:484247886461403144> {user} was unmuted."
+            ),
+            delete_after=5
+        )
+        channel = await self.bot.get_logging_channel(ctx.guild)
+        if not channel:
+            return
+        embed = discord.Embed(
+            color=discord.Color.blurple(),
+            title=f"{user}",
+            timestamp=datetime.utcnow()
+        )
+        embed.set_author(
+            name="User was unmuted",
+            icon_url=user.avatar_url_as(format="png")
+        )
+        embed.add_field(
+            name="Responsible Moderator",
+            value=f"{ctx.author}"
         )
         await channel.send(embed=embed)
 

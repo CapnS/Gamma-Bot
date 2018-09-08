@@ -3,7 +3,7 @@ asyncpg
 aiohttp
 psutil
 lxml
-psycopg2
+psycopg2-binary
 youtube_dl
 speedtest-cli
 jishaku

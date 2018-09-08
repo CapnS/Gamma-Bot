@@ -7,6 +7,7 @@ import psycopg2
 import json
 import git
 import asyncio
+import traceback
 
 HIDE_JISHAKU = 1
 
@@ -134,13 +135,8 @@ class Bot(commands.Bot):
         return False
 
     async def get_muted_role(self, guild):
-        _id = await self.db.fetchval("SELECT roleid FROM muted_roles WHERE guildid=$1;", guild.id)
-        if not _id:
-            return
-        role = get(guild.roles, id=_id)
-        if not role:
-            return
-        return role
+        return get(guild.roles,
+                   id=(await self.db.fetchval("SELECT roleid FROM muted_roles WHERE guildid=$1;", guild.id)))
 
     async def get_pref(self, bot, message):
         return await self.db.fetchval("SELECT prefix FROM prefixes WHERE guildid=$1;", message.guild.id) or "gb!"
@@ -171,7 +167,8 @@ class Bot(commands.Bot):
         except KeyError:
             pass
         if message.content == "<@478437101122224128>" or message.content == "<@481730556380577793>":
-            await message.channel.send("My prefix here is `gb!`. Use `gb!help` for a list of commands.")
+            prefix = await self.get_pref(self, message)
+            await message.channel.send(f"My prefix here is `{prefix}`. Use `{prefix}help` for a list of commands.")
             return
         ctx = await self.get_context(message, cls=CustomContext)
         await self.invoke(ctx)
@@ -221,6 +218,7 @@ class Bot(commands.Bot):
                               description=f"<:nano_exclamation:483063871360466945> {nexc}")
         if self.debug:
             embed.set_footer(text=f"Debug: {type(exc).__name__}")
+            print(f"{type(exc).__name__} -> {exc}")
         await ctx.send(embed=embed)
 
     async def get_logging_channel(self, guild):

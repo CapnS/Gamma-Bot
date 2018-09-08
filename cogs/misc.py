@@ -2,14 +2,13 @@ from discord.ext import commands
 from discord.ext.commands import clean_content
 from HelpPaginator import HelpPaginator
 from datetime import datetime
-from .utils import role
 from SimplePaginator import SimplePaginator
 import discord
 import psutil
 import json
 import speedtest
-import psycopg2
 import asyncio
+import random
 
 process = psutil.Process()
 
@@ -126,7 +125,7 @@ class Misc:
             color=discord.Color.blurple(),
             description=desc
         )
-        embed.set_author(name=f"{self.bot.user} Statistics", icon_url=self.bot.user.avatar_url_as(format="png"))
+        embed.set_author(name=f"{self.bot.user} Statistics", icon_url=self.bot.user.avatar_url_as(static_format="png"))
         await ctx.send(embed=embed)
 
     @commands.command(
@@ -166,12 +165,18 @@ class Misc:
         brief="View info about the guild."
     )
     async def server_info(self, ctx):
+        color = 0
+        while color == 0:
+            color = random.choice(ctx.guild.role_hierarchy).color.value
         embed = discord.Embed(
-            color=role.get_top_colored_role(ctx.guild.roles).color
+            color=color
         )
         embed.set_author(
             name=ctx.guild.name,
-            icon_url=ctx.guild.avatar_url_as(format="png")
+            icon_url=ctx.guild.icon_url_as(format="png")
+        )
+        embed.set_thumbnail(
+            url=ctx.guild.icon_url_as(format="png")
         )
         embed.add_field(
             name="Server Owner",
@@ -187,8 +192,28 @@ class Misc:
         )
         embed.add_field(
             name="Created At",
-            value="e"
+            value=ctx.guild.created_at.strftime("%d/%m/%y @ %I:%M%p")
         )
+        mems = [m.id for m in ctx.guild.members if not m.bot]
+        bots = [m.id for m in ctx.guild.members if m.bot]
+        embed.add_field(
+            name="Member Count",
+            value=f"{len(mems)} Members | {len(bots)} Bots"
+        )
+        embed.add_field(
+            name="Role Count",
+            value=str(len(ctx.guild.roles))
+        )
+        embed.add_field(
+            name="Text Channel Count",
+            value=str(len([c.id for c in ctx.guild.text_channels]))
+        )
+        embed.add_field(
+            name="Emote Count",
+            value=str(len(ctx.guild.emojis))
+        )
+        embed.set_footer(text=f"ID: {ctx.guild.id}")
+        await ctx.send(embed=embed)
 
     @staticmethod
     def do_st():
@@ -302,8 +327,7 @@ class Misc:
         brief="Get all roles of the guild."
     )
     async def roles(self, ctx):
-        roles = sorted([_role.name for _role in ctx.guild.roles if not _role.is_default() and not _role.managed])
-        roles = [discord.utils.get(ctx.guild.roles, name=_role).mention for _role in roles]
+        roles = [role.mention for role in ctx.guild.role_hierarchy if not role.is_default()]
         if len(roles) > 15:
             await SimplePaginator(entries=roles, color=0x7289da, title=f"{ctx.guild} Roles", length=15).paginate(ctx)
         else:
@@ -349,9 +373,8 @@ class Misc:
                     description="<:nano_info:483063870655823873> What is your feedback?"
                 )
             )
-            check = lambda _m: _m.author == ctx.author
             try:
-                msg = await self.bot.wait_for("message", check=check, timeout=15.0)
+                msg = await self.bot.wait_for("message", check=lambda _m: _m.author == ctx.author, timeout=15.0)
             except asyncio.TimeoutError:
                 await m.delete()
             else:
@@ -364,7 +387,7 @@ class Misc:
                         timestamp=datetime.utcnow()
                     ).set_author(
                         name="New feedback recieved.",
-                        icon_url=ctx.author.avatar_url_as(format="png")
+                        icon_url=ctx.author.avatar_url_as(static_format="png")
                     ).set_footer(text=f"From {ctx.author}")
                 )
                 await ctx.send(
@@ -383,7 +406,7 @@ class Misc:
                     timestamp=datetime.utcnow()
                 ).set_author(
                     name="New feedback recieved.",
-                    icon_url=ctx.author.avatar_url_as(format="png")
+                    icon_url=ctx.author.avatar_url_as(static_format="png")
                 ).set_footer(text=f"From {ctx.author}")
             )
             await ctx.send(
@@ -404,6 +427,31 @@ class Misc:
                 description="[View my source code here](https://github.com/XuaTheGrate/Gamma-Bot/)"
             )
         )
+
+    @commands.command(
+        description="View detailed information about a member.",
+        brief="View information about someone."
+    )
+    async def userinfo(self, ctx, *, user: discord.Member=None):
+        user = user or ctx.author
+        col = user.color if user.color.value > 0 else discord.Color(16777215)
+        embed = discord.Embed(title="User information", description=f"<@{user.id}>", color=col)
+        embed.set_author(name=f"{user}", icon_url=f"{user.avatar_url_as(format='png')}")
+        embed.set_thumbnail(url=f"{user.avatar_url_as(format='png')}")
+        reg_time = user.created_at.strftime("%a %d %b, %Y")
+        embed.add_field(name='Registered', value=f'{reg_time}', inline=True)
+        join_time = user.joined_at.strftime("%a %d %b, %Y")
+        embed.add_field(name='Joined', value=f'{join_time}', inline=True)
+        pos = sorted(user.guild.members, key=lambda m: m.joined_at).index(user) + 1
+        embed.add_field(name='Join Pos', value=f'{pos}', inline=True)
+        embed.add_field(name='Status', value=f'{user.status}'.title(), inline=True)
+        roles = [r.mention for r in user.roles if not r.is_default()]
+        if not len(" ".join(roles)) > 1000:
+            embed.add_field(name=f'Roles ({len(roles)})', value=f'{" ".join(roles) or "None"}', inline=False)
+        else:
+            embed.add_field(name=f'Roles ({len(roles)})', value='Too long to display.', inline=False)
+        embed.set_footer(text=f"ID: {user.id}")
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
