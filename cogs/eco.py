@@ -4,6 +4,7 @@ from datetime import datetime
 import random
 import discord
 
+
 class Economy:
     def __init__(self, bot):
         self.bot = bot
@@ -54,68 +55,27 @@ class Economy:
         description="Test your luck against RNG itself!",
         brief="Try your luck!"
     )
-    async def bet(self, ctx, number: int, amount: int):
-        # Range setup (if you bet within this range, you win)
-        utc = datetime.utcnow()
-        n = datetime(utc.year, utc.month, utc.day)
-        seed = n.timestamp()
-        random.seed(seed)
-        b_range = random.randint(0, 100)
-
-        # do some checks
-        bal = await self.bot.db.fetchval('SELECT balance FROM economy WHERE userid=$1;',ctx.author.id)
-        assert bal is not None, "You don't have an account!"
-        assert amount < bal, "You don't have enough money for that!"
-        assert 0 < number < 101, "A number between 1-100 is required."
-        
-        # do the rng
-        nbal = bal - amount
-        random.seed(ctx.author.id/utc.timestamp())
-        rng = random.randint(1,100)
-        
-        debug = f"{max(0,rng-b_range)} < {number} < {min(100,rng+b_range)}"
-
-        # finish up
-        if max(0,rng-b_range) < number < min(100,rng+b_range):
-            n_amount = round(amount * max(round((b_range*-1)%10,2),1.5))
-            """
-            print(b_range)
-            print(b_range*-1)
-            print((b_range*-1)%10)
-            print(round((b_range*-1)%10,2))
-            print(min(round((b_range*-1)%10,2),1.5))
-            print(max(round((b_range*-1)%10,2),1.5))
-            print(amount*min(round((b_range*-1)%10,2),1.5))
-            print(f"{round(amount * min(round((b_range*-1)%10,2),1.5))}")
-            """
-            n_bal = nbal + amount
-
-            await self.bot.db.execute("UPDATE economy SET balance=$1 WHERE userid=$2;",n_bal,ctx.author.id)
-
-            embed = discord.Embed(color=discord.Color.blurple(),
-            description=f"<:nano_check:484247886461403144> You won **${n_amount}**!")
-            embed.set_footer(text=debug)
-            await ctx.send(embed=embed)
+    async def bet(self, ctx, amount: int):
+        bal = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", ctx.author.id)
+        assert bal > amount, "You don't have enougb money for that!"
+        rng = random.randint(1, 101)
+        total = int(((rng / 25) / 2.5) * amount)
+        if total < amount:
+            await ctx.send(
+                embed=discord.Embed(
+                    description=f"<:nano_minus:483063870672601114> You lost **${total}**",
+                    color=discord.Color.blurple()
+                )
+            )
+            await self.bot.db.execute("UPDATE economy SET balance=balance-$1 WHERE userid=$2;", total, ctx.author.id)
         else:
-            await self.bot.db.execute("UPDATE economy SET balance=$1 WHERE userid=$2;", nbal, ctx.author.id)
-            embed = discord.Embed(color=discord.Color.blurple(),
-            description=f"<:nano_cross:484247886494695436> You lost **${amount}**.")
-            embed.set_footer(text=debug)
-            await ctx.send(embed=embed)
-    
-    @commands.command(
-        description="View todays betting range.",
-        brief="View todays betting range.",
-        name="range"
-    )
-    async def bet_range(self, ctx):
-        utc = datetime.utcnow()
-        n = datetime(utc.year,utc.month,utc.day)
-        seed = n.timestamp()
-        random.seed(seed)
-        b_range = random.randint(0,100)
-        await ctx.send(embed=discord.Embed(color=discord.Color.blurple(),
-        description=f"<:nano_info:483063870655823873> Today's range is **{b_range}**."))
+            await ctx.send(
+                embed=discord.Embed(
+                    description=f"<:nano_plus:483063870827528232> You won **${total}**",
+                    color=discord.Color.blurple()
+                )
+            )
+            await self.bot.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", total, ctx.author.id)
 
 
 def setup(bot):

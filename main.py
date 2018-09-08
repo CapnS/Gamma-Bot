@@ -7,7 +7,6 @@ import psycopg2
 import json
 import git
 import asyncio
-import traceback
 
 HIDE_JISHAKU = 1
 
@@ -22,6 +21,7 @@ extensions = [
     # 'cogs.rpg',
     'cogs.mods',
     'cogs.settings',
+    'cogs.tags',
     "jishaku"
 ]
 
