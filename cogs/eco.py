@@ -57,7 +57,7 @@ class Economy:
     )
     async def bet(self, ctx, amount: int):
         bal = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", ctx.author.id)
-        assert bal > amount, "You don't have enougb money for that!"
+        assert bal >= amount, "You don't have enougb money for that!"
         rng = random.randint(1, 101)
         total = int(((rng / 25) / 2.5) * amount)
         if total < amount:
