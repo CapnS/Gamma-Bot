@@ -47,6 +47,7 @@ class Bot(commands.Bot):
                                                                                       "WHERE userid IS NOT NULL;")}
         self.global_blacklist = [m['userid'] for m in self.psycopg2_fetch("SELECT userid FROM global_blacklist;")]
         self.is_purging = {}
+        self.debug = True
 
     @staticmethod
     def clean_string(string):
@@ -164,7 +165,6 @@ class Bot(commands.Bot):
             embed = discord.Embed(color=discord.Color.blurple(), 
                                   description="<:nano_exclamation:483063871360466945> You do not have permission to run"
                                               " this command.")
-            embed.set_footer(text=f"Debug: {type(exc).__name__}")
             await ctx.send(embed=embed)
             return
         if isinstance(exc, commands.CommandNotFound):
@@ -172,7 +172,6 @@ class Bot(commands.Bot):
             embed = discord.Embed(color=discord.Color.blurple(), 
                                   description=f"<:nano_exclamation:483063871360466945> Command \"{cmd}\" "
                                               f"does not exist.")
-            embed.set_footer(text=f"Debug: {type(exc).__name__}")
             await ctx.send(embed=embed)
             return
         if isinstance(exc, commands.CommandOnCooldown):
@@ -189,12 +188,12 @@ class Bot(commands.Bot):
                 desc = f"Try again in **{round(s)}**"
             return await ctx.send(embed=discord.Embed(color=discord.Color.blurple(),
                                                       description=f"<:nano_exclamation:483063871360466945>"
-                                                                  f" {desc}").set_footer(text="Debug: "
-                                                                                              "{type(exc).__name__}"))
+                                                                  f" {desc}"))
         nexc = str(exc)
         embed = discord.Embed(color=discord.Color.blurple(), 
                               description=f"<:nano_exclamation:483063871360466945> {nexc}")
-        embed.set_footer(text=f"Debug: {type(exc).__name__}")
+        if self.debug:
+            embed.set_footer(text=f"Debug: {type(exc).__name__}")
         await ctx.send(embed=embed)
 
     async def get_logging_channel(self, guild):

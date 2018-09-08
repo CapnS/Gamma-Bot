@@ -5,6 +5,10 @@ import asyncio
 
 
 class Mods:
+    """
+    Make sure to use `help <command> to view more information on a certain command.
+    This will also view any specified subcommands for that command.
+    """
     def __init__(self, bot):
         self.bot = bot
 
@@ -127,15 +131,16 @@ class Mods:
         await asyncio.sleep(2)
         self.bot.is_purging[ctx.channel.id] = False
 
-    @commands.command(
+    @commands.group(
         description="Warn a user for a certain thing.",
-        brief="Warn a user"
+        brief="Warn a user",
+        invoke_without_command=True
     )
     @commands.has_permissions(manage_guild=True)
     async def warn(self, ctx, user: discord.Member, *, reason=None):
         warns = await self.bot.db.fetchval("SELECT warns FROM warnings WHERE userid=$1 AND guildid=$2;",
                                            user.id, ctx.guild.id)
-        if not warns:
+        if warns is None:
             warns = []
             await self.bot.db.execute("INSERT INTO warnings VALUES ($1, $2, $3);", ctx.guild.id, user.id, [reason])
         else:
@@ -184,11 +189,11 @@ class Mods:
         embed.set_footer(text=f"DMed? {dm}")
         await logging.send(embed=embed)
 
-    @commands.command(
+    @warn.command(
         description="View warns for a specific user, or yourself.",
         brief="View warnings for a user."
     )
-    async def warns(self, ctx, *, user: discord.Member=None):
+    async def list(self, ctx, *, user: discord.Member=None):
         if not user or user == ctx.author:
             embed = discord.Embed(
                 color=discord.Color.blurple(),
@@ -235,6 +240,92 @@ class Mods:
                 value="No warnings for this guild."
             )
         await ctx.send(embed=embed)
+
+    @warn.command(
+        description="Clear a specific warning from a user.",
+        brief="Clear a warning."
+    )
+    @commands.has_permissions(manage_messages=True)
+    async def clear(self, ctx, user: discord.Member, *, warn=None):
+        warns = await self.bot.db.fetchval("SELECT warns FROM warnings WHERE userid=$1 AND guildid=$2;",
+                                           user.id, ctx.guild.id)
+        assert warns is not None, "User has no warnings."
+        assert len(warns) > 0, "User has no warnings."
+        if not warn:
+            rem = warns.pop(0)
+            await self.bot.db.execute("UPDATE warnings SET warns=$1 WHERE userid=$2 AND guildid=$3;",
+                                      warns, user.id, ctx.guild.id)
+            await ctx.send(
+                embed=discord.Embed(
+                    color=discord.Color.blurple(),
+                    description="<:nano_check:484247886461403144> Warning removed."
+                ),
+                delete_after=5
+            )
+        else:
+            assert warn in warns, "No warning found.\nNote: When removing a specific warning,\nmake sure it is typed" \
+                                  " exactly the same."
+            warns.remove(warn)
+            await self.bot.db.execute("UPDATE warnings SET warns=$1 WHERE userid=$2 AND guildid=$3;",
+                                      warns, user.id, ctx.guild.id)
+            rem = warn
+            await ctx.send(
+                embed=discord.Embed(
+                    color=discord.Color.blurple(),
+                    description="<:nano_check:484247886461403144> Warning removed."
+                ),
+                delete_after=5
+            )
+        channel = await self.bot.get_logging_channel(ctx.guild)
+        if not channel:
+            return
+        embed = discord.Embed(
+            title=f"{ctx.author}",
+            color=discord.Color.blurple(),
+            description=f"**Warn**\n{rem}",
+            timestamp=datetime.utcnow()
+        )
+        embed.set_author(
+            name="A warning was cleared",
+            icon_url=ctx.author.avatar_url_as(static_format="png")
+        )
+        await channel.send(embed=embed)
+
+    @warn.command(
+        description="Remove all warnings of a specified user.",
+        brief="Remove all warnings."
+    )
+    @commands.has_permissions(manage_messages=True)
+    async def clearall(self, ctx, *, user: discord.Member):
+        warns = await self.bot.db.fetchval("SELECT warns FROM warnings WHERE userid=$1 AND guildid=$2;",
+                                           user.id, ctx.guild.id)
+        assert warns is not None, f"{user} has no warnings."
+        await self.bot.db.execute("UPDATE warnings SET warns=NULL WHERE userid=$1 AND guildid=$2;",
+                                  user.id, ctx.guild.id)
+        await ctx.send(
+            embed=discord.Embed(
+                color=discord.Color.blurple(),
+                description=f"<:nano_check:484247886461403144> Removed all warnings for {user}"
+            ),
+            delete_after=5
+        )
+        channel = await self.bot.get_logging_channel(ctx.guild)
+        if not channel:
+            return
+        embed = discord.Embed(
+            color=discord.Color.blurple(),
+            title=f"{ctx.author}",
+            timestamp=datetime.utcnow()
+        )
+        embed.set_author(
+            name="Users warnings were cleared",
+            icon_url=ctx.author.avatar_url_as(static_format="png")
+        )
+        embed.add_field(
+            name="Total warnings removed",
+            value=f"{len(warns)}"
+        )
+        await channel.send(embed=embed)
 
 
 def setup(bot):
