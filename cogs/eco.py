@@ -78,6 +78,33 @@ class Economy:
             await self.bot.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", total, ctx.author.id)
 
     @commands.command(
+        description="Try your luck and double your bet!",
+        brief="Double or nothing.",
+        aliases=['doubleornothing', '50', '50/50']
+    )
+    async def don(self, ctx, amount: int):
+        bal = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", ctx.author.id)
+        assert bal is not None, "You don't have any money!"
+        assert bal > amount, "You don't have enough money!"
+        yes = random.choice([True, False])
+        if yes:
+            await self.bot.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", amount, ctx.author.id)
+            await ctx.send(
+                embed=discord.Embed(
+                    color=discord.Color.blurple(),
+                    description=f"<:nano_plus:483063870827528232> You won **${amount}**!"
+                )
+            )
+        else:
+            await self.bot.db.execute("UPDATE economy SET balance=balance-$1 WHERE userid=$1;", amount, ctx.author.id)
+            await ctx.send(
+                embed=discord.Embed(
+                    color=discord.Color.blurple(),
+                    description=f"<:nano_minus:483063870672601114> You lost **${amount}**."
+                )
+            )
+
+    @commands.command(
         description="View the leaderboard, whether its global or local.",
         brief="View the leaderboard.",
         aliases=['lb']
