@@ -129,6 +129,35 @@ class Economy:
             )
         )
 
+    @commands.command(
+        description="Try to rob a person. The more money, the more likely you are to succeed.\nNOTE! If you fail, they"
+                    "will be alerted!",
+        brief="Try to rob another member.",
+        aliases=['rob']
+    )
+    async def steal(self, ctx, amount: int, user: discord.Member):
+        pass
+
+    @commands.command(
+        description="Give some money to a user.",
+        brief="Give some money to a user.",
+        aliases=['give']
+    )
+    async def transfer(self, ctx, user: discord.Member, amount: int):
+        balance = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", ctx.author.id)
+        bal = await self.bot.db.fetchvak("SELECT balance FROM economy WHERE userid=$1;", user.id)
+        assert balance is not None, "You don't have any money!"
+        assert bal is not NOne, f"{user} doesn't have an account!'"
+        assert balance >= amount, "You don't have enough money!"
+        await self.bot.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", amount, user.id)
+        await self.bot.db.execute("UPDATE economy SET balance=balance-$1 WHERE userid=$2;", amount, user.id)
+        await ctx.send(
+            embed=discord.Embed(
+                color=discord.Color.blurple(),
+                description=f"<:nano_check:484247886461403144> Transferred **${amount}** to {user}."
+            )
+        )
+
     @commands.command(hidden=True)
     @commands.is_owner()
     async def baladjust(self, ctx, amount: int, user: discord.Member=None):
