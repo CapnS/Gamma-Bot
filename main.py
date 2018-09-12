@@ -131,8 +131,14 @@ class Bot(commands.AutoShardedBot):
         self.prefixes = {}
         for p in data:
             self.prefixes.setdefault(p['guildid'], p['prefix'])
-        now = datetime.utcnow().strftime("%H:%M")
-        print(f"Flushed prefixes @ {now}")
+
+    async def _flush_all(self):
+        while not self.is_closed():
+            await self._flush_blacklist()
+            await self._flush_prefixes()
+            now = datetime.utcnow().strftime("%d/%m/%y @ %H:%M")
+            print(f"Auto-saved data. {now}")
+            await asyncio.sleep(43200)
 
     async def presence_updater(self):
         await self.wait_until_ready()
@@ -202,6 +208,7 @@ class Bot(commands.AutoShardedBot):
         # Officiality
         self.official = self.get_guild(483063756948111372) is not None
         self.loop.create_task(self.presence_updater())
+        self.loop.create_task(self._flush_all())
         print("Bot has connected.")
         print(f"Logged in as {self.user}")
         print(f"Total Guilds: {len(self.guilds)}")
