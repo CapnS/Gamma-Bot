@@ -114,7 +114,7 @@ class Economy:
     async def leaderboard(self, ctx, mode="local"):
         mode = mode.lower()
         assert mode == 'local' or mode == 'global', "Invalid leaderboard type."
-        users = await self.bot.db.fetch("SELECT * FROM economy ORDER BY balance DESC;")
+        users = await self.bot.db.fetch("SELECT * FROM economy ORDER BY balance DESC, userid ASC;")
         if mode == 'local':
             mems = {users[u]['userid']: users[u]['balance'] for u in range(len(users))
                     if ctx.guild.get_member(users[u]['userid']) is not None}
