@@ -112,7 +112,7 @@ class Debug():
     async def usage(self, ctx):
         stdout = io.StringIO()
         with redirect_stdout(stdout):
-            self.bot.tracker.print_diff()
+            await self.bot.loop.run_in_executor(None, self.bot.tracker.print_diff)
         await ctx.send(f"```py\n{stdout.getvalue()}\n```")
 
 
