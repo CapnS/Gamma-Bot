@@ -14,8 +14,6 @@ HIDE_JISHAKU = 1
 
 BETA = True
 
-TRACKER = SummaryTracker()
-
 # extensions = [f"cogs.{e.replace('.py','')}" for e in list(os.walk("./cogs"))[0][2] if e.endswith(".py")]
 extensions = [
     # 'cogs.autoresponder',
@@ -43,7 +41,6 @@ class CustomContext(commands.Context):
 
 class Bot(commands.AutoShardedBot):
     def __init__(self):
-        self.tracker = TRACKER
         super().__init__(command_prefix=self.get_pref, desc="Zeta",reconnect=True)
         if not BETA:
             cred = {"user": "gammabot", "password": "gamma", "database": "gammabot", "host": "127.0.0.1"}

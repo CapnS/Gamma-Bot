@@ -5,7 +5,8 @@ import discord
 import traceback
 import copy
 import io
-import textwrap
+from pympler import summary
+from pympler import muppy
 
 
 class Debug():
@@ -112,7 +113,9 @@ class Debug():
     async def usage(self, ctx):
         stdout = io.StringIO()
         with redirect_stdout(stdout):
-            await self.bot.loop.run_in_executor(None, self.bot.tracker.print_diff)
+            obj = muppy.get_objects()
+            s = summary.summarize(obj)
+            await self.bot.loop.run_in_executor(None, summary.print_, s)
         await ctx.send(f"```py\n{stdout.getvalue()}\n```")
 
 
