@@ -115,10 +115,10 @@ class Economy:
         assert mode == 'local' or mode == 'global', "Invalid leaderboard type."
         users = await self.bot.db.fetch("SELECT * FROM economy ORDER BY balance DESC;")
         if mode == 'local':
-            mems = {users[u]['userid']: users[u]['balance'] for u in range(len(users), 10)
+            mems = {users[u]['userid']: users[u]['balance'] for u in range(len(users))
                     if ctx.guild.get_member(users[u]['userid']) is not None}
         else:
-            mems = {users[u]['userid']: users[u]['balance'] for u in range(len(users), 10)
+            mems = {users[u]['userid']: users[u]['balance'] for u in range(len(users))
                     if self.bot.get_user(users[u]['userid'] is not None)}
         await ctx.send(
             embed=discord.Embed(
