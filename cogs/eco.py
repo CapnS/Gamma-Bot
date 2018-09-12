@@ -60,9 +60,10 @@ class Economy:
     async def bet(self, ctx, amount: int):
         bal = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", ctx.author.id)
         assert bal >= amount, "You don't have enougb money for that!"
-        rng = random.uniform(0.0, 2.0)
+        rng = random.uniform(1.0, 2.0)
         total = int(amount * rng)
-        if rng < 1:
+        up = random.choice([True, False])
+        if up:
             await ctx.send(
                 embed=discord.Embed(
                     description=f"<:nano_minus:483063870672601114> You lost **${total}**",
@@ -71,6 +72,7 @@ class Economy:
             )
             await self.bot.db.execute("UPDATE economy SET balance=balance-$1 WHERE userid=$2;", total, ctx.author.id)
         else:
+            total = total * -1
             await ctx.send(
                 embed=discord.Embed(
                     description=f"<:nano_plus:483063870827528232> You won **${total}**",
