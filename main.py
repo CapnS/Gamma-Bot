@@ -126,6 +126,14 @@ class Bot(commands.AutoShardedBot):
         for userid in self.global_blacklist:
             await self.db.execute("INSERT INTO global_blacklist VALUES ($1);", userid)
 
+    async def _flush_prefixes(self):
+        data = await self.db.fetch("SELECT * FROM prefixes;")
+        self.prefixes = {}
+        for p in data:
+            self.prefixes.setdefault(p['guildid'], p['prefix'])
+        now = datetime.utcnow().strftime("%H:%M")
+        print(f"Flushed prefixes @ {now}")
+
     async def presence_updater(self):
         await self.wait_until_ready()
         while not self.is_closed():
@@ -150,7 +158,7 @@ class Bot(commands.AutoShardedBot):
                    id=(await self.db.fetchval("SELECT roleid FROM muted_roles WHERE guildid=$1;", guild.id)))
 
     async def get_pref(self, bot, message):
-        return self.prefixes.get(str(message.guild.id)) or "gb!"
+        return self.prefixes.get(message.guild.id) or "gb!"
 
     def run(self, token):
         for extension in extensions:

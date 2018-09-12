@@ -52,6 +52,7 @@ class Settings:
             ),
             delete_after=5
         )
+        await self.bot._flush_prefixes()
 
     @settings.command(
         description="Change the current muted role.\nNOTE: Changing the current role will edit all permissions"
