@@ -56,20 +56,19 @@ class Economy:
         description="Test your luck against RNG itself!",
         brief="Try your luck!"
     )
-    @commands.cooldown(5, 60, BucketType.user)
+    @commands.cooldown(5, 15, BucketType.user)
     async def bet(self, ctx, amount: int):
         bal = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", ctx.author.id)
         assert bal >= amount, "You don't have enougb money for that!"
-        rng = random.randint(1, 101)
-        total = int(((rng / 25) / 2.5) * amount)
-        if total < amount:
+        rng = random.uniform(0.0, 2.0)
+        total = int(amount * rng)
+        if rng < 1:
             await ctx.send(
                 embed=discord.Embed(
                     description=f"<:nano_minus:483063870672601114> You lost **${total}**",
                     color=discord.Color.blurple()
                 )
             )
-            print(f"Bet {amount} | RNG {rng} | Total {total} | Diff {bal-total} > User {ctx.author}")
             await self.bot.db.execute("UPDATE economy SET balance=balance-$1 WHERE userid=$2;", total, ctx.author.id)
         else:
             await ctx.send(
@@ -78,7 +77,6 @@ class Economy:
                     color=discord.Color.blurple()
                 )
             )
-            print(f"Bet {amount} | RNG {rng} | Total {total} | Diff {bal+total} > User {ctx.author}")
             await self.bot.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", total, ctx.author.id)
 
     @commands.command(
