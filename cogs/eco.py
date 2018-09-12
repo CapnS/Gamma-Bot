@@ -118,9 +118,12 @@ class Economy:
         if mode == 'local':
             mems = {users[u]['userid']: users[u]['balance'] for u in range(len(users))
                     if ctx.guild.get_member(users[u]['userid']) is not None}
+            print(f"Local members length {len(mems)}")
         else:
             mems = {users[u]['userid']: users[u]['balance'] for u in range(len(users))
-                    if self.bot.get_user(users[u]['userid'] is not None)}
+                    if self.bot.get_user(users[u]['userid']) is not None}
+            print(f"Global members length {len(mems)}")
+        mems = dict(list(mems.items())[:10])
         await ctx.send(
             embed=discord.Embed(
                 title=f"{ctx.guild} Leaderboard" if mode == 'local' else "Global Leaderboard",
