@@ -61,6 +61,7 @@ class Bot(commands.AutoShardedBot):
         self.global_blacklist = [m['userid'] for m in self.psycopg2_fetch("SELECT userid FROM global_blacklist;")]
         self.is_purging = {}
         self.debug = BETA
+        self.prefixes = {n['guildid']: n['prefix'] for n in self.psycopg2_fetch("SELECT * FROM prefixes;")}
 
     @staticmethod
     def clean_string(string):
@@ -149,7 +150,7 @@ class Bot(commands.AutoShardedBot):
                    id=(await self.db.fetchval("SELECT roleid FROM muted_roles WHERE guildid=$1;", guild.id)))
 
     async def get_pref(self, bot, message):
-        return await self.db.fetchval("SELECT prefix FROM prefixes WHERE guildid=$1;", message.guild.id) or "gb!"
+        return self.prefixes.get(str(message.guild.id)) or "gb!"
 
     def run(self, token):
         for extension in extensions:
