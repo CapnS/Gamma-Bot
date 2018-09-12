@@ -10,6 +10,7 @@ class Economy:
         self.bot = bot
         self.wheel = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
                       1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]
+        self.dictionary = {}
     
     async def __before_invoke(self, ctx):
         data = await self.bot.db.fetchrow("SELECT * FROM economy WHERE userid=$1;", ctx.author.id)
@@ -114,10 +115,10 @@ class Economy:
         assert mode == 'local' or mode == 'global', "Invalid leaderboard type."
         users = await self.bot.db.fetch("SELECT * FROM economy ORDER BY balance DESC;")
         if mode == 'local':
-            mems = {users[u]['userid']: users[u]['balance'] for u in range(min(len(users), 10))
+            mems = {users[u]['userid']: users[u]['balance'] for u in range(len(users), 10)
                     if ctx.guild.get_member(users[u]['userid']) is not None}
         else:
-            mems = {users[u]['userid']: users[u]['balance'] for u in range(min(len(users), 10))
+            mems = {users[u]['userid']: users[u]['balance'] for u in range(len(users), 10)
                     if self.bot.get_user(users[u]['userid'] is not None)}
         await ctx.send(
             embed=discord.Embed(
