@@ -2,6 +2,7 @@ from discord.ext import commands
 from datetime import datetime
 from discord.utils import get
 from pympler.tracker import SummaryTracker
+from discord.ext.commands import clean_content
 import discord
 import asyncpg
 import psycopg2
@@ -179,6 +180,11 @@ class Bot(commands.AutoShardedBot):
             prefix = await self.get_pref(self, message)
             await message.channel.send(f"My prefix here is `{prefix}`. Use `{prefix}help` for a list of commands.")
             return
+        if message.guild.me in message.mentions:
+            m = self.get_user(455289384187592704)
+            content = f"Gamma Beta was pinged just now by {message.author} in {message.guild}," \
+                      f"{message.channel.mention}\n```\n{message.clean_content}\n```"
+            await m.send(content, embed=message.embeds[0] if len(message.embeds) > 0 else None)
         ctx = await self.get_context(message, cls=CustomContext)
         await self.invoke(ctx)
         # print(ctx.secret)
