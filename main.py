@@ -11,7 +11,7 @@ import asyncio
 
 HIDE_JISHAKU = 1
 
-BETA = False
+BETA = True
 
 TRACKER = SummaryTracker()
 
@@ -175,7 +175,7 @@ class Bot(commands.AutoShardedBot):
                 return
         except KeyError:
             pass
-        if message.content == "<@478437101122224128>" or message.content == "<@481730556380577793>":
+        if message.content == f"<@!{self.user.id}>" or message.content == f"<@{self.user.id}>":
             prefix = await self.get_pref(self, message)
             await message.channel.send(f"My prefix here is `{prefix}`. Use `{prefix}help` for a list of commands.")
             return
