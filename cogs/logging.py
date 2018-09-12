@@ -13,6 +13,7 @@ class Logging:
         brief="Adjust logging-related shit.",
         aliases=['logging_create', 'lognew', 'logcreate', 'lnew', 'lcreate']
     )
+    @commands.has_permissions(manage_channels=True)
     async def logging_new(self, ctx, *, channel: discord.TextChannel=None):
         channel = channel or ctx.channel
         exist = await self.bot.db.fetchval("SELECT channelid FROM logging WHERE guildid=$1;", channel.guild.id)

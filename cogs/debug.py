@@ -108,6 +108,13 @@ class Debug():
         new_ctx = await self.bot.get_context(msg)
         await self.bot.invoke(new_ctx)
 
+    @commands.command(hidden=True)
+    async def usage(self, ctx):
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            self.bot.tracker.print_diff()
+        await ctx.send(f"```py\n{stdout.getvalue()}\n```")
+
 
 def setup(bot):
     bot.add_cog(Debug(bot))
