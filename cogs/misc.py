@@ -10,6 +10,8 @@ import speedtest
 import asyncio
 import random
 import logging
+import matplotlib.pyplot as plt
+import matplotlib
 
 logger = logging.getLogger(__name__)
 process = psutil.Process()
@@ -454,6 +456,29 @@ class Misc:
             embed.add_field(name=f'Roles ({len(roles)})', value='Too long to display.', inline=False)
         embed.set_footer(text=f"ID: {user.id}")
         await ctx.send(embed=embed)
+
+    @staticmethod
+    def _mpl_generate(stuff):
+        matplotlib.rc('axes', edgecolor='w')
+        hours = [e for e in range(0, 24)]
+        ping = [s['ms'] for s in stuff]
+        plt.plot(hours, ping, color="white")
+        plt.xlabel("Hour of day", color='white')
+        plt.ylabel("Ping (ms)", color='white')
+        plt.tick_params(axis='x', colors='white')
+        plt.tick_params(axis='y', colors='white')
+        plt.savefig("tmp/resp.png", transparent=True)
+
+    @commands.command(
+        description="View a detailed graph about my connection times.",
+        brief="Ping graph."
+    )
+    async def pinggraph(self, ctx):
+        async with ctx.typing():
+            record = await self.bot.db.fetch("SELECT * FROM websocket_latency;")
+            await self.bot.loop.run_in_executor(None, self._mpl_generate, record)
+            with open("tmp/resp.png", 'rb') as f:
+                await ctx.send(file=discord.File(f.read(), 'resp.png'))
 
 
 def setup(bot):

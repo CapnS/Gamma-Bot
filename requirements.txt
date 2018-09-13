@@ -10,3 +10,4 @@ jishaku
 GitPython
 pympler
 uvloop ; sys_platform == 'linux'
+matplotlib
