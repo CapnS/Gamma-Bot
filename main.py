@@ -48,9 +48,15 @@ class CustomContext(commands.Context):
         return "sneak"
 
 
+description = """
+Gamma. A Discord bot written in Python by Xua#9307
+You can view Gamma's source here: <https://github.com/XuaTheGrate/Gamma-Bot/>
+"""
+
+
 class Bot(commands.AutoShardedBot):
     def __init__(self):
-        super().__init__(command_prefix=self.get_pref, desc="Zeta",reconnect=True)
+        super().__init__(command_prefix=self.get_pref, desc=description, reconnect=True)
         if not BETA:
             cred = {"user": "gammabot", "password": "gamma", "database": "gammabot", "host": "127.0.0.1"}
         else:
@@ -217,10 +223,16 @@ class Bot(commands.AutoShardedBot):
         ctx = await self.get_context(message, cls=CustomContext)
         await self.invoke(ctx)
 
+    async def hourly_update(self):
+        while not self.is_closed():
+            hour = datetime.now().hour
+            await self.db.execute("UPDATE websocket_latency SET ms=$1 WHERE hour=$2;", round(self.latency*1000, 2), hour)
+            await asyncio.sleep(3600)
+
     async def on_ready(self):
         self.official = self.get_guild(483063756948111372) is not None
-        self.loop.create_task(self.presence_updater())
-        self.loop.create_task(self._flush_all())
+        self.loop.create_task(self.presence_updater())  # updates every 10 minutes
+        self.loop.create_task(self._flush_all())  # updatees every 12 hours
         loaded = '\n'.join(self.__loaded_modules)
         failed = '\n'.join([f"> {e[0]}\n- {e[1]}" for e in self.__failed_modules])
         await self.send_xua(
