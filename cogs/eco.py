@@ -4,8 +4,10 @@ from datetime import datetime
 import random
 import discord
 import logging
+import asyncio
 
 logger = logging.getLogger(__name__)
+
 
 class Balance:
     def __init__(self, db):
@@ -21,8 +23,22 @@ class Balance:
         spl = [amount[i:i + 3][::-1] for i in range(0, len(amount), 3)]
         return "$"+",".join(spl[::-1])
 
-    async def loan(self, user: discord.Member):
+    async def get_loan(self, user: discord.Member):
         return await self.db.fetchval("SELECT require FROM loans WHERE userid=$1;", user.id)
+
+    @staticmethod
+    async def get_rate():
+        random.seed(datetime.utcnow().timestamp)
+        return random.randint(1, 100)
+
+    async def new_loan(self, user: discord.Member, amount: int):
+        rate = await self.get_rate() / 100
+        total = amount + (amount*rate)
+        await self.db.execute("INERT INTO loans VALUES ($1, $2);", user.id, int(total))
+        await self.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", amount)
+
+    async def clear_loan(self, user: discord.Member):
+        await self.db.execute("DELETE FROM loans WHERE userid=$1;", user.id)
 
 
 class Economy:
@@ -35,7 +51,7 @@ class Economy:
     
     async def __before_invoke(self, ctx):
         data = await self.bal.get(ctx.author)
-        if not data:
+        if data is None:
             await self.bot.db.execute("INSERT INTO economy VALUES ($1, 1000);",ctx.author.id)
 
 
@@ -205,7 +221,38 @@ class Economy:
     )
     async def loan(self, ctx, amount: int):
         interest = await self.bal.loan(ctx.author)
-        assert interest is not None, "You haven't taken any loans."
+        assert interest is None, "You already have a loan waiting."
+        rate = await self.bal.get_rate()
+        m = await ctx.send(
+            embed=discord.Embed(
+                color=discord.Color.blurple(),
+                description=f'<:nano_info:483063870655823873> Todays rate is {rate}%. Do you want to continue?'
+                            f'\nReact with <:nano_check:484247886461403144> to confirm.'
+            )
+        )
+        await m.add_reaction(':nano_check:484247886461403144')
+        try:
+            await self.bot.wait_for('reaction_add', timeout=15.0, check=lambda r, u: u==ctx.author and \
+                                    str(r) == '<:nano_check:484247886461403144>')
+        except asyncio.TimeoutError:
+            pass
+        else:
+            await self.bal.new_loan(ctx.author, amount)
+            await ctx.send(
+                embed=discord.Embed(
+                    color=discord.Color.blurple(),
+                    description="<:nano_check:484247886461403144> Done. You gained **{}** and now have a loan of **{}**"
+                                " waiting for you."
+                ).set_footer(text='Note: run the "loaninfo" command to view information about loans.')
+            )
+        finally:
+            await m.delete()
+
+    @commands.command(
+        description="View detailed information about loans, how they work, the interest rates etc.",
+        brief="View information about loans."
+    )
+    async def
 
 
 def setup(bot):
