@@ -34,7 +34,7 @@ class Balance:
     async def new_loan(self, user: discord.Member, amount: int):
         rate = await self.get_rate() / 100
         total = amount + (amount*rate)
-        await self.db.execute("INERT INTO loans VALUES ($1, $2);", user.id, int(total))
+        await self.db.execute("INSERT INTO loans VALUES ($1, $2);", user.id, int(total))
         await self.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", amount)
 
     async def clear_loan(self, user: discord.Member):
