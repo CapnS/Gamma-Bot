@@ -10,6 +10,8 @@ import asyncio
 import os
 import logging
 import logging.handlers
+import matplotlib
+matplotlib.use('Agg')
 try:
     import uvloop
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
