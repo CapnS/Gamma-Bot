@@ -367,7 +367,8 @@ class Misc:
         embed.add_field(name="Created At", value=f"""{_role.created_at.strftime("%d/%m/%y @ %H:%M%p")}""")
         perms = dict(_role.permissions)
         allowed = [d.replace('_',' ').title() for d in perms.keys() if perms[d] is True and d in self.spec_perms]
-        embed.add_field(name="Permissions", value=", ".join(allowed))
+        if allowed:
+            embed.add_field(name="Permissions", value=", ".join(allowed))
         embed.set_thumbnail(url=link)
         embed.set_footer(text=f"Belongs to {_role.guild}", icon_url=_role.guild.icon_url_as(format="png"))
         await ctx.send(embed=embed)
