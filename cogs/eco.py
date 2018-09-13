@@ -232,7 +232,7 @@ class Economy:
         brief="Request a loan from Mr. L. Shark."
     )
     async def loan(self, ctx, amount: int):
-        interest = await self.bal.loan(ctx.author)
+        interest = await self.bal.get_loan(ctx.author)
         assert interest is None, "You already have a loan waiting."
         rate = await self.bal.get_rate()
         m = await ctx.send(
