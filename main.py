@@ -13,7 +13,7 @@ try:
 except ImportError:
     pass
 
-HIDE_JISHAKU = 1
+JISHAKU_HIDE = 'on'
 
 BETA = True
 
@@ -223,11 +223,6 @@ class Bot(commands.AutoShardedBot):
             await ctx.send(embed=embed)
             return
         if isinstance(exc, commands.CommandNotFound):
-            cmd = ctx.invoked_with
-            embed = discord.Embed(color=discord.Color.blurple(), 
-                                  description=f"<:nano_exclamation:483063871360466945> Command \"{cmd}\" "
-                                              f"does not exist.")
-            await ctx.send(embed=embed)
             return
         if isinstance(exc, commands.CommandOnCooldown):
             h, r = divmod(exc.retry_after, 3600)
