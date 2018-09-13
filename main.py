@@ -229,13 +229,13 @@ class Bot(commands.AutoShardedBot):
             m, s = divmod(r, 60)
             d, h = divmod(h, 24)
             if d > 0:
-                desc = f"Try again in **{round(d)}:{round(h)}:{round(m)}:{round(s)}**"
+                desc = f"Try again in **{round(d)}d {round(h)}h {round(m)}m {round(s)}s**"
             elif h > 0:
-                desc = f"Try again in **{round(h)}:{round(m)}:{round(s)}**"
+                desc = f"Try again in **{round(h)}h {round(m)}m {round(s)}s**"
             elif m > 0:
-                desc = f"Try again in **{round(m)}:{round(s)}**"
+                desc = f"Try again in **{round(m)}m {round(s)}s**"
             else:
-                desc = f"Try again in **{round(s)}**"
+                desc = f"Try again in **{round(s)}s**"
             return await ctx.send(embed=discord.Embed(color=discord.Color.blurple(),
                                                       description=f"<:nano_exclamation:483063871360466945>"
                                                                   f" {desc}"))
