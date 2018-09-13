@@ -2,6 +2,9 @@ from discord.ext import commands
 from datetime import datetime
 import discord
 import asyncio
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Mods:

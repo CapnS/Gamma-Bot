@@ -7,6 +7,8 @@ import psycopg2
 import json
 import git
 import asyncio
+import logging
+import logging.handlers
 try:
     import uvloop
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -14,6 +16,9 @@ except ImportError:
     pass
 
 JISHAKU_HIDE = 'on'
+
+logger = logging.getLogger()
+logger.addHandler(logging.handlers.SysLogHandler())
 
 BETA = True
 

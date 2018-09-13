@@ -2,7 +2,9 @@ from discord.ext import commands
 from datetime import datetime
 from SimplePaginator import SimplePaginator
 import discord
+import logging
 
+logger = logging.getLogger(__name__)
 
 class Tags:
     def __init__(self, bot):

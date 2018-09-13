@@ -1,7 +1,9 @@
 from discord.ext import commands
 from asyncpg.exceptions import StringDataRightTruncationError as SDRTE
 import discord
+import logging
 
+logger = logging.getLogger(__name__)
 
 class Settings:
     """

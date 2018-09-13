@@ -1,7 +1,9 @@
 from discord.ext import commands
-from discord.ext.commands import CommandError
 from asyncio import TimeoutError
 import discord
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Logging:

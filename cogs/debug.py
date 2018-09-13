@@ -7,7 +7,9 @@ import copy
 import io
 from pympler import summary
 from pympler import muppy
+import logging
 
+logger = logging.getLogger(__name__)
 
 class Debug():
     def __init__(self, bot):
@@ -54,8 +56,8 @@ class Debug():
         )
     
     @commands.command(hidden=True)
-    async def exit(self, ctx):
-        await ctx.send("kthxbai")
+    async def reboot(self, ctx):
+        await ctx.send("Restarting...")
         await self.bot.logout()
 
     @commands.command(hidden=True)

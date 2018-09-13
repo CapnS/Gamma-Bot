@@ -3,7 +3,9 @@ from discord.ext.commands.cooldowns import BucketType
 from datetime import datetime
 import random
 import discord
+import logging
 
+logger = logging.getLogger(__name__)
 
 class Balance:
     def __init__(self, db):
@@ -204,7 +206,6 @@ class Economy:
     async def loan(self, ctx, amount: int):
         interest = await self.bal.loan(ctx.author)
         assert interest is not None, "You haven't taken any loans."
-
 
 
 def setup(bot):

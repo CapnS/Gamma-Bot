@@ -9,7 +9,9 @@ import json
 import speedtest
 import asyncio
 import random
+import logging
 
+logger = logging.getLogger(__name__)
 process = psutil.Process()
 
 
