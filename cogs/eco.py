@@ -19,6 +19,9 @@ class Balance:
         spl = [amount[i:i + 3][::-1] for i in range(0, len(amount), 3)]
         return "$"+",".join(spl[::-1])
 
+    async def loan(self, user: discord.Member):
+        return await self.db.fetchval("SELECT require FROM loans WHERE userid=$1;", user.id)
+
 
 class Economy:
     def __init__(self, bot):
@@ -29,9 +32,10 @@ class Economy:
         self.bal = Balance(bot.db)
     
     async def __before_invoke(self, ctx):
-        data = await self.bot.db.fetchrow("SELECT * FROM economy WHERE userid=$1;", ctx.author.id)
+        data = await self.bal.get(ctx.author)
         if not data:
             await self.bot.db.execute("INSERT INTO economy VALUES ($1, 1000);",ctx.author.id)
+
 
     @commands.command(
         aliases=["$", "bal"],
@@ -198,7 +202,9 @@ class Economy:
         brief="Request a loan from Mr. L. Shark."
     )
     async def loan(self, ctx, amount: int):
-        pass
+        interest = await self.bal.loan(ctx.author)
+        assert interest is not None, "You haven't taken any loans."
+
 
 
 def setup(bot):

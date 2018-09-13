@@ -9,3 +9,4 @@ speedtest-cli
 jishaku
 GitPython
 pympler
+uvloop ; sys_platform == 'linux'

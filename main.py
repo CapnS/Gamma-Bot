@@ -1,14 +1,17 @@
 from discord.ext import commands
 from datetime import datetime
 from discord.utils import get
-from pympler.tracker import SummaryTracker
-from discord.ext.commands import clean_content
 import discord
 import asyncpg
 import psycopg2
 import json
 import git
 import asyncio
+try:
+    import uvloop
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+except ImportError:
+    pass
 
 HIDE_JISHAKU = 1
 
