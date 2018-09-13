@@ -460,6 +460,9 @@ class Misc:
 
     @staticmethod
     def _mpl_generate(stuff):
+        plt.clf()
+        plt.cla()
+        plt.close()
         matplotlib.rc('axes', edgecolor='w')
         hours = [e for e in range(0, 24)]
         ping = [s['ms'] for s in stuff]
