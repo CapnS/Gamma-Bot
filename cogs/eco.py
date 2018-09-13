@@ -5,12 +5,28 @@ import random
 import discord
 
 
+class Balance:
+    def __init__(self, db):
+        self.db = db
+
+    async def get(self, user: discord.Member):
+        return await self.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", user.id)
+
+    @staticmethod
+    def to_str(amount: int):
+        amount = str(amount)
+        amount = amount[::-1]
+        spl = [amount[i:i + 3][::-1] for i in range(0, len(amount), 3)]
+        return "$"+",".join(spl[::-1])
+
+
 class Economy:
     def __init__(self, bot):
         self.bot = bot
         self.wheel = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
                       1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]
         self.dictionary = {}
+        self.bal = Balance(bot.db)
     
     async def __before_invoke(self, ctx):
         data = await self.bot.db.fetchrow("SELECT * FROM economy WHERE userid=$1;", ctx.author.id)
@@ -24,12 +40,12 @@ class Economy:
     )
     async def balance(self, ctx, *, member: discord.Member=None):
         member = member or ctx.author
-        bal = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1", member.id)
+        bal = await self.bal.get(member)
         assert bal is not None, f"{member} does not have an account!"
         await ctx.send(
             embed=discord.Embed(
                 color=discord.Color.blurple(),
-                description=f"<:nano_cash:484224928342605835> **{member}** has **${bal}**"
+                description=f"<:nano_cash:484224928342605835> **{member}** has **{self.bal.to_str(bal)}**"
             )
         )
     
@@ -39,7 +55,7 @@ class Economy:
     )
     @commands.cooldown(1, 86400, BucketType.user)
     async def daily(self, ctx):
-        bal = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", ctx.author.id)
+        bal = await self.bal.get(ctx.author)
         assert bal is not None
         utc = datetime.utcnow()
         n = datetime(utc.year, utc.month, utc.day)
@@ -55,7 +71,7 @@ class Economy:
         await self.bot.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", rng, ctx.author.id)
         embed = discord.Embed(
             color=discord.Color.blurple(),
-            description=f"<:nano_cash:484224928342605835> You gained **${rng}**"
+            description=f"<:nano_cash:484224928342605835> You gained **${self.bal.to_str(rng)}**"
         )
         embed.set_footer(text=f"Seed: {round(seed)}")
         await ctx.send(embed=embed)
@@ -66,7 +82,7 @@ class Economy:
     )
     @commands.cooldown(5, 15, BucketType.user)
     async def bet(self, ctx, amount: int):
-        bal = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", ctx.author.id)
+        bal = await self.bal.get(ctx.author)
         assert bal is not None
         assert bal >= amount, "You don't have enough money."
         await self.bot.db.execute("UPDATE economy SET balance=balance-$1 WHERE userid=$2;", amount, ctx.author.id)
@@ -82,7 +98,8 @@ class Economy:
         await ctx.send(
             embed=discord.Embed(
                 color=discord.Color.blurple(),
-                description=success.format((nbal-bal) if total > amount else ((nbal-bal)*-1))
+                description=success.format(self.bal.to_str(nbal-bal) if total > amount
+                                           else self.bal.to_str((nbal-bal)*-1))
             )
         )
 
@@ -92,7 +109,7 @@ class Economy:
         aliases=['doubleornothing', '50', '50/50']
     )
     async def don(self, ctx, amount: int):
-        bal = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", ctx.author.id)
+        bal = await self.bal.get(ctx.author)
         assert bal is not None, "You don't have any money!"
         assert bal >= amount, "You don't have enough money!"
         yes = random.choice([True, False])
@@ -101,7 +118,7 @@ class Economy:
             await ctx.send(
                 embed=discord.Embed(
                     color=discord.Color.blurple(),
-                    description=f"<:nano_plus:483063870827528232> You won **${amount}**!"
+                    description=f"<:nano_plus:483063870827528232> You won **${self.bal.to_str(amount)}**!"
                 )
             )
         else:
@@ -109,7 +126,7 @@ class Economy:
             await ctx.send(
                 embed=discord.Embed(
                     color=discord.Color.blurple(),
-                    description=f"<:nano_minus:483063870672601114> You lost **${amount}**."
+                    description=f"<:nano_minus:483063870672601114> You lost **${self.bal.to_str(amount)}**."
                 )
             )
 
@@ -135,9 +152,8 @@ class Economy:
             embed=discord.Embed(
                 title=f"{ctx.guild} Leaderboard" if mode == 'local' else "Global Leaderboard",
                 color=discord.Color.blurple(),
-                description="\n".join([f"{a+1}. {self.bot.get_user(b)}: ${c}" for a, b, c in zip(range(len(mems)),
-                                                                                                 mems.keys(),
-                                                                                                 mems.values())])
+                description="\n".join([f"{a+1}. {self.bot.get_user(b)}: {self.bal.to_str(c)}"
+                                       for a, b, c in zip(range(len(mems)), mems.keys(), mems.values())])
             )
         )
 
@@ -156,8 +172,8 @@ class Economy:
         aliases=['give']
     )
     async def transfer(self, ctx, user: discord.Member, amount: int):
-        balance = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", ctx.author.id)
-        bal = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", user.id)
+        balance = await self.bal.get(ctx.author)
+        bal = await self.bal.get(user)
         assert balance is not None, "You don't have any money!"
         assert bal is not None, f"{user} doesn't have an account!'"
         assert balance >= amount, "You don't have enough money!"
@@ -166,7 +182,7 @@ class Economy:
         await ctx.send(
             embed=discord.Embed(
                 color=discord.Color.blurple(),
-                description=f"<:nano_check:484247886461403144> Transferred **${amount}** to {user}."
+                description=f"<:nano_check:484247886461403144> Transferred **${self.bal.to_str(amount)}** to {user}."
             )
         )
 
@@ -175,6 +191,14 @@ class Economy:
     async def baladjust(self, ctx, amount: int, user: discord.Member=None):
         await self.bot.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", amount, user.id)
         await ctx.send("\U0001f44c")
+
+    @commands.command(
+        description="Hello. I am Mr. L. Shark. you can request a loan for me, however depending on how I feel, you may"
+                    "need to pay a certain amount of interest in return.",
+        brief="Request a loan from Mr. L. Shark."
+    )
+    async def loan(self, ctx, amount: int):
+        pass
 
 
 def setup(bot):
