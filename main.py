@@ -25,13 +25,13 @@ BETA = os.getenv('DEBUG_MODE') is None
 
 # extensions = [f"cogs.{e.replace('.py','')}" for e in list(os.walk("./cogs"))[0][2] if e.endswith(".py")]
 extensions = [
-    # 'cogs.autoresponder',
+    'cogs.autoresponder',
     'cogs.debug',
     'cogs.eco',
     'cogs.misc',
     'cogs.music',
     'cogs.logging',
-    # 'cogs.rpg',
+    'cogs.rpg',
     'cogs.mods',
     'cogs.settings',
     'cogs.tags',
@@ -68,6 +68,8 @@ class Bot(commands.AutoShardedBot):
         self.is_purging = {}
         self.debug = BETA
         self.prefixes = {n['guildid']: n['prefix'] for n in self.psycopg2_fetch("SELECT * FROM prefixes;")}
+        self.__loaded_modules = []
+        self.__failed_modules = []
 
     @staticmethod
     def clean_string(string):
@@ -143,8 +145,11 @@ class Bot(commands.AutoShardedBot):
             await self._flush_blacklist()
             await self._flush_prefixes()
             now = datetime.utcnow().strftime("%d/%m/%y @ %H:%M")
-            print(f"Auto-saved data. {now}")
+            await self.send_xua(f"Auto-saved data. {now}")
             await asyncio.sleep(43200)
+
+    async def send_xua(self, content):
+        await self.get_user(455289384187592704).send(content)
 
     async def presence_updater(self):
         await self.wait_until_ready()
@@ -176,9 +181,9 @@ class Bot(commands.AutoShardedBot):
         for extension in extensions:
             try:
                 self.load_extension(extension)
-                print(f"Successfully loaded {extension}")
+                self.__loaded_modules.append(extension)
             except Exception as e:
-                print(f"Error loading extension {extension}\n{type(e).__name__}: {e}")
+                self.__failed_modules.append((extension, f"{type(e).__name__}: {e}"))
         super().run(token)
 
     async def logout(self):
@@ -187,6 +192,9 @@ class Bot(commands.AutoShardedBot):
 
     async def on_message(self, message):
         if message.author.bot:
+            return
+        if not message.guild:
+            await self.send_xua(f"{self.user} was DMed just now by {message.author}\n```prolog\n{message.content}\n```")
             return
         if message.author.id in self.global_blacklist and not await self.is_owner(message.author):
             return
@@ -208,16 +216,24 @@ class Bot(commands.AutoShardedBot):
             await m.send(content, embed=message.embeds[0] if len(message.embeds) > 0 else None)
         ctx = await self.get_context(message, cls=CustomContext)
         await self.invoke(ctx)
-        # print(ctx.secret)
-    
+
     async def on_ready(self):
-        # Officiality
         self.official = self.get_guild(483063756948111372) is not None
         self.loop.create_task(self.presence_updater())
         self.loop.create_task(self._flush_all())
-        print("Bot has connected.")
-        print(f"Logged in as {self.user}")
-        print(f"Total Guilds: {len(self.guilds)}")
+        loaded = '\n'.join(self.__loaded_modules)
+        failed = '\n'.join([f"> {e[0]}\n- {e[1]}" for e in self.__failed_modules])
+        await self.send_xua(
+            ("-"*20)+"\n"
+            f"Bot has connected.\n"
+            f"Total guilds: {len(self.guilds)}\n"
+            f"Loaded shards: {len(self.shards)}\n"
+            f"Total users: {len(self.users)}\n"
+            f"Successfully loaded {len(self.__loaded_modules)} modules\n"
+            f"```prolog\n{loaded}\n```"
+            f"Failed to load {len(self.__failed_modules)} modules\n"
+            f"```prolog\n{failed}\n```"
+        )
     
     async def on_command_error(self, ctx, exc):
         if isinstance(exc, commands.CommandInvokeError):
@@ -251,8 +267,7 @@ class Bot(commands.AutoShardedBot):
         if self.debug:
             import traceback
             embed.set_footer(text=f"Debug: {type(exc).__name__}")
-            #  print(f"{type(exc).__name__} -> {exc}")
-            traceback.print_exception(type(exc), exc, exc.__traceback__)
+            await self.send_xua(traceback.format_exception(type(exc), exc, exc.__traceback__))
         await ctx.send(embed=embed)
 
     async def get_logging_channel(self, guild):
