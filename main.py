@@ -280,7 +280,7 @@ class Bot(commands.AutoShardedBot):
         if self.debug:
             import traceback
             embed.set_footer(text=f"Debug: {type(exc).__name__}")
-            await self.send_xua(traceback.format_exception(type(exc), exc, exc.__traceback__))
+            await self.send_xua("```py\n"+"".join(traceback.format_exception(type(exc), exc, exc.__traceback__))+"\n```")
         await ctx.send(embed=embed)
 
     async def get_logging_channel(self, guild):
