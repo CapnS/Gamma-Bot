@@ -10,8 +10,9 @@ import speedtest
 import asyncio
 import random
 import logging
-import matplotlib.pyplot as plt
 import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 logger = logging.getLogger(__name__)
 process = psutil.Process()
