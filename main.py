@@ -20,7 +20,7 @@ JISHAKU_HIDE = 'on'
 logger = logging.getLogger()
 logger.addHandler(logging.handlers.SysLogHandler())
 
-BETA = True
+BETA = False
 
 # extensions = [f"cogs.{e.replace('.py','')}" for e in list(os.walk("./cogs"))[0][2] if e.endswith(".py")]
 extensions = [
