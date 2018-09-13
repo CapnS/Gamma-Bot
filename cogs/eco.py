@@ -36,6 +36,7 @@ class Balance:
         total = amount + (amount*rate)
         await self.db.execute("INSERT INTO loans VALUES ($1, $2);", user.id, int(total))
         await self.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", amount, user.id)
+        return total
 
     async def clear_loan(self, user: discord.Member):
         await self.db.execute("DELETE FROM loans WHERE userid=$1;", user.id)
@@ -249,12 +250,12 @@ class Economy:
         except asyncio.TimeoutError:
             pass
         else:
-            await self.bal.new_loan(ctx.author, amount)
+            n = await self.bal.new_loan(ctx.author, amount)
             await ctx.send(
                 embed=discord.Embed(
                     color=discord.Color.blurple(),
-                    description="<:nano_check:484247886461403144> Done. You gained **{}** and now have a loan of **{}**"
-                                " waiting for you."
+                    description=f"<:nano_check:484247886461403144> Done. You gained **{amount}** and now have a loan of"
+                                f" **{n}** waiting for you."
                 ).set_footer(text='Note: run the "loaninfo" command to view information about loans.')
             )
         finally:
