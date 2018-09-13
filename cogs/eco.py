@@ -252,7 +252,8 @@ class Economy:
         description="View detailed information about loans, how they work, the interest rates etc.",
         brief="View information about loans."
     )
-    async def
+    async def loaninfo(self, ctx):
+        pass
 
 
 def setup(bot):
