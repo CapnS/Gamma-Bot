@@ -463,6 +463,10 @@ class Misc:
             embed.add_field(name=f'Roles ({len(roles)})', value=f'{" ".join(roles) or "None"}', inline=False)
         else:
             embed.add_field(name=f'Roles ({len(roles)})', value='Too long to display.', inline=False)
+        perms = dict(user.guild_permissions)
+        allowed = [d.replace('_', ' ').title() for d in perms.keys() if perms[d] is True and d in self.spec_perms]
+        if allowed:
+            embed.add_field(name="Permissions", value=", ".join(allowed))
         embed.set_footer(text=f"ID: {user.id}")
         await ctx.send(embed=embed)
 
