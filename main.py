@@ -7,6 +7,7 @@ import psycopg2
 import json
 import git
 import asyncio
+import os
 import logging
 import logging.handlers
 try:
@@ -20,7 +21,7 @@ JISHAKU_HIDE = 'on'
 logger = logging.getLogger()
 logger.addHandler(logging.handlers.SysLogHandler())
 
-BETA = False
+BETA = os.getenv('DEBUG_MODE').lower() in ('1', 'yes', 'on', 'true')
 
 # extensions = [f"cogs.{e.replace('.py','')}" for e in list(os.walk("./cogs"))[0][2] if e.endswith(".py")]
 extensions = [
