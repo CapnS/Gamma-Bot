@@ -93,7 +93,7 @@ class Economy:
         await self.bot.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", rng, ctx.author.id)
         embed = discord.Embed(
             color=discord.Color.blurple(),
-            description=f"<:nano_cash:484224928342605835> You gained **${self.bal.to_str(rng)}**"
+            description=f"<:nano_cash:484224928342605835> You gained **{self.bal.to_str(rng)}**"
         )
         embed.set_footer(text=f"Seed: {round(seed)}")
         await ctx.send(embed=embed)
@@ -113,9 +113,9 @@ class Economy:
         total = int(amount*wheel)
         nbal = n_bal + total
         if total < amount:
-            success = "<:nano_cross:484247886494695436> You lost **${}**."
+            success = "<:nano_cross:484247886494695436> You lost **{}**."
         else:
-            success = "<:nano_check:484247886461403144> You won **${}**!"
+            success = "<:nano_check:484247886461403144> You won **{}**!"
         await self.bot.db.execute("UPDATE economy SET balance=$1 WHERE userid=$2;", nbal, ctx.author.id)
         await ctx.send(
             embed=discord.Embed(
@@ -140,7 +140,7 @@ class Economy:
             await ctx.send(
                 embed=discord.Embed(
                     color=discord.Color.blurple(),
-                    description=f"<:nano_plus:483063870827528232> You won **${self.bal.to_str(amount)}**!"
+                    description=f"<:nano_plus:483063870827528232> You won **{self.bal.to_str(amount)}**!"
                 )
             )
         else:
@@ -148,7 +148,7 @@ class Economy:
             await ctx.send(
                 embed=discord.Embed(
                     color=discord.Color.blurple(),
-                    description=f"<:nano_minus:483063870672601114> You lost **${self.bal.to_str(amount)}**."
+                    description=f"<:nano_minus:483063870672601114> You lost **{self.bal.to_str(amount)}**."
                 )
             )
 
