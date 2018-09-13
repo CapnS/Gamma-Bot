@@ -39,11 +39,19 @@ class Economy:
     )
     @commands.cooldown(1, 86400, BucketType.user)
     async def daily(self, ctx):
+        bal = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", ctx.author.id)
+        assert bal is not None
         utc = datetime.utcnow()
         n = datetime(utc.year, utc.month, utc.day)
         seed = (ctx.author.id-n.timestamp())/1234567890
         random.seed(seed)
-        rng = random.randint(500, 1500)
+        low = random.randint(1, bal//4)
+        high = random.randint(1, bal//4)
+        if low < high:
+            rng = random.randint(low, high)
+        else:
+            rng = random.randint(high, low)
+        rng = int(rng)
         await self.bot.db.execute("UPDATE economy SET balance=balance+$1 WHERE userid=$2;", rng, ctx.author.id)
         embed = discord.Embed(
             color=discord.Color.blurple(),
