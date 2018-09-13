@@ -59,25 +59,16 @@ class Economy:
     @commands.cooldown(5, 15, BucketType.user)
     async def bet(self, ctx, amount: int):
         bal = await self.bot.db.fetchval("SELECT balance FROM economy WHERE userid=$1;", ctx.author.id)
-        print("fetch balance")
         assert bal is not None
-        print("balance exists")
         assert bal >= amount, "You don't have enough money."
-        print("has enough money")
         await self.bot.db.execute("UPDATE economy SET balance=balance-$1 WHERE userid=$2;", amount, ctx.author.id)
-        print(f"set balance to {bal-amount} from {bal}")
         n_bal = bal - amount
         wheel = random.choice(self.wheel)
-        print(f"random wheel {wheel}")
         total = int(amount*wheel)
-        print(f"total {total}, amount {amount}")
-        print(f"set balance to {n_bal+total} from {bal}")
         nbal = n_bal + total
         if total < amount:
-            print(f"{total} < {amount}")
             success = "<:nano_cross:484247886494695436> You lost **${}**."
         else:
-            print(f"{total} > {amount}")
             success = "<:nano_check:484247886461403144> You won **${}**!"
         await self.bot.db.execute("UPDATE economy SET balance=$1 WHERE userid=$2;", nbal, ctx.author.id)
         await ctx.send(
@@ -86,7 +77,6 @@ class Economy:
                 description=success.format((nbal-bal) if total > amount else ((nbal-bal)*-1))
             )
         )
-        print("-"*100)
 
     @commands.command(
         description="Try your luck and double your bet!",
