@@ -21,6 +21,10 @@ process = psutil.Process()
 class Misc:
     def __init__(self, bot):
         self.bot = bot
+        self.spec_perms = ['administrator', 'ban_members', 'deafen_members', 'kick_members', 'manage_channels',
+                           'manage_emojis', 'manage_guild', 'manage_messages', 'manage_nicknames', 'manage_roles',
+                           'manage_webhooks', 'mention_everyone', 'move_members', 'mute_members',
+                           'view_audit_log']
 
     @staticmethod
     def time_difference(alpha, beta):
@@ -361,6 +365,9 @@ class Misc:
         embed.add_field(name="User Count", value=f"{len(_role.members)}")
         embed.add_field(name="Role ID", value=f"{_role.id}")
         embed.add_field(name="Created At", value=f"""{_role.created_at.strftime("%d/%m/%y @ %H:%M%p")}""")
+        perms = dict(_role.permissions)
+        allowed = [d.replace('_',' ').title() for d in perms.keys() if perms[d] is True and d in self.spec_perms]
+        embed.add_field(name="Permissions", value=", ".join(allowed))
         embed.set_thumbnail(url=link)
         embed.set_footer(text=f"Belongs to {_role.guild}", icon_url=_role.guild.icon_url_as(format="png"))
         await ctx.send(embed=embed)

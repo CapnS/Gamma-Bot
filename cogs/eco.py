@@ -68,7 +68,6 @@ class Economy:
                     )
                 )
 
-
     @commands.command(
         aliases=["$", "bal"],
         description="View yours, or another members balance.",
