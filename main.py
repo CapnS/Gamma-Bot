@@ -232,7 +232,8 @@ class Bot(commands.AutoShardedBot):
     async def on_ready(self):
         self.official = self.get_guild(483063756948111372) is not None
         self.loop.create_task(self.presence_updater())  # updates every 10 minutes
-        self.loop.create_task(self._flush_all())  # updatees every 12 hours
+        self.loop.create_task(self._flush_all())  # updates every 12 hours
+        self.loop.create_task(self.hourly_update())  # updates every hour
         loaded = '\n'.join(self.__loaded_modules)
         failed = '\n'.join([f"> {e[0]}\n- {e[1]}" for e in self.__failed_modules])
         await self.send_xua(
