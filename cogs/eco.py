@@ -53,6 +53,18 @@ class Economy:
         data = await self.bal.get(ctx.author)
         if data is None:
             await self.bot.db.execute("INSERT INTO economy VALUES ($1, 1000);",ctx.author.id)
+        loan = await self.bal.get_loan(ctx.author)
+        if loan is not None:
+            if data > loan:
+                n = self.bal.to_str(loan)
+                await self.bot.db.execute("UPDATE economy SET balance=balance-$1 WHERE userid=$2;", loan, ctx.author.id)
+                await ctx.send(
+                    embed=discord.Embed(
+                        color=discord.Color.blurple(),
+                        description=f"<:nano_info:483063870655823873> {ctx.author}, your loan of **{n}** was "
+                                    f"automatically repaid."
+                    )
+                )
 
 
     @commands.command(
