@@ -156,8 +156,8 @@ class Bot(commands.AutoShardedBot):
             await self.send_xua(f"Auto-saved data. {now}")
             await asyncio.sleep(43200)
 
-    async def send_xua(self, content):
-        await self.get_user(455289384187592704).send(content)
+    async def send_xua(self, content="empty", *, embed=None, file=None):
+        await self.get_user(455289384187592704).send(content, embed=embed, file=file)
 
     async def presence_updater(self):
         await self.wait_until_ready()
@@ -202,7 +202,34 @@ class Bot(commands.AutoShardedBot):
         if message.author.bot:
             return
         if not message.guild:
-            await self.send_xua(f"{self.user} was DMed just now by {message.author}\n```prolog\n{message.content}\n```")
+            embed = discord.Embed(
+                color=discord.Color.blurple(),
+                title=f"{self.user} was DMed",
+                timestamp=datetime.utcnow()
+            )
+            embed.set_author(
+                name=str(message.author),
+                icon_url=message.author.avatar_url_as(format="png")
+            )
+            embed.add_field(
+                name="Content",
+                value=f"```py\n{message.clean_content}\n```"
+            )
+            file = None
+            if message.attachments:
+                attach = message.attachments[0]
+                if attach.height is not None:
+                    await attach.save('tmp/png.png')
+                    with open('tmp/png.png', 'rb') as f:
+                        file = discord.File(f.read(), "image.png")
+            if file is not None:
+                embed.set_image(
+                    url="attachment://image.png"
+                )
+            await self.send_xua(
+                embed=embed,
+                file=file
+            )
             return
         if message.author.id in self.global_blacklist and not await self.is_owner(message.author):
             return
