@@ -156,7 +156,7 @@ class Bot(commands.AutoShardedBot):
             await self.send_xua(f"Auto-saved data. {now}")
             await asyncio.sleep(43200)
 
-    async def send_xua(self, content="empty", *, embed=None, file=None):
+    async def send_xua(self, content=None, *, embed=None, file=None):
         await self.get_user(455289384187592704).send(content, embed=embed, file=file)
 
     async def presence_updater(self):

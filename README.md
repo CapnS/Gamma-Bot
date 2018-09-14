@@ -172,6 +172,10 @@ psycopg2
 youtube_dl
 speedtest-cli
 jishaku
+GitPython
+uvloop if linux
+pympler
+matplotlib
 ```
 
 ## Credits
