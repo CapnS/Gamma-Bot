@@ -222,10 +222,12 @@ class Bot(commands.AutoShardedBot):
                     await attach.save('tmp/png.png')
                     with open('tmp/png.png', 'rb') as f:
                         file = discord.File(f.read(), "image.png")
-            if file is not None:
-                embed.set_image(
-                    url="attachment://image.png"
-                )
+                    embed.set_image(
+                        url="attachment://image.png"
+                    )
+                else:
+                    with open('tmp/'+attach.filename, 'rb') as f:
+                        file = discord.File(f.read(), attach.filename)
             await self.send_xua(
                 embed=embed,
                 file=file
