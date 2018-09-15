@@ -12,7 +12,7 @@ This channel contains critical information about the server, you will definitely
 
 Thanks for joining, and enjoy your stay!
 ----------------------------------------
-"""  # remember to add an image for this as well
+"""
 
 
 class GammaSupport:
@@ -33,6 +33,13 @@ class GammaSupport:
     async def _update_inv_cache(self):
         self._invite_cache = {invite.code: invite.uses for invite in await self.gs.invites()}
 
+    async def update_recent_joined(self, member):
+        data = await self.db.fetch("SELECT * FROM new_users ORDER BY joined DESC;")
+        if len(data) < 5:
+            pass
+        else:
+            pass
+
     @staticmethod
     async def __local_check(ctx):
         return ctx.guild.id == GSGuild
@@ -41,6 +48,8 @@ class GammaSupport:
         if member.guild.id != 479413987633528842:
             return
         await self._update_inv_cache()
+        await self.wc.send(WelcomeMessage.replace("%usermention%", member.mention))
+        # await self.
 
 
 def setup(bot):

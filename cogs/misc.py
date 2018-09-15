@@ -13,9 +13,13 @@ import logging
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import git
 
 logger = logging.getLogger(__name__)
 process = psutil.Process()
+
+repo = git.Repo('.')
+head = repo.head
 
 
 class Misc:
@@ -114,6 +118,8 @@ class Misc:
 <:nano_chart:483063870433263637> Memory Usage (%): **{int((int(process.memory_info()[0]/1024/1024)/750)*100)}%**
 <:nano_exclamation:483063871360466945> Commands: **{cmds}**
 <:nano_gear:483063870538252288> Cogs: **{len(self.bot.cogs)}**
+<:nano_info:483063870655823873> Latest Commit: [**{str(head.commit)[:7]}**]\
+(https://github.com/XuaTheGrate/Gamma-Bot/commit/{str(head.commit)})
 """
         else:
             desc = f"""**Invite / Support**
