@@ -8,7 +8,6 @@ Here's a list of currently running modules:
 - Auto Moderation
 - Information
 - Miscellaneous
-- RPG
 - Auto Response + Custom Responses
 - Auto Role / Self Assignable Roles
 - Logging
@@ -75,19 +74,6 @@ commands.
 - Say / Echo
 - Trello / To do
 - Cat Fact
-
-#### RPG
-- Character Creation
-- View Character Profile
-- Class List
-- Stats per Class
-- Enemies
-- Bosses
-- Randomly Generated Dungeons
-- Level up and Experience
-- Weapons
-- Armor
-- Accessories
 
 #### Auto Response
 - Channel Blacklist

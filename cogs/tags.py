@@ -6,6 +6,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class Tags:
     def __init__(self, bot):
         self.bot = bot
