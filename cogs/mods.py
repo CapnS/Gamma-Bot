@@ -106,12 +106,12 @@ class Mods:
             await ctx.send(
                 embed=discord.Embed(
                     color=discord.Color.blurple(),
-                    description=f"<:nano_check:484247886461403144> Deleted {len(m)} messages."
+                    description=f"<:nano_check:484247886461403144> Deleted {amount} messages."
                 ),
                 delete_after=3
             )
-        logging = await self.bot.get_logging_channel(ctx.guild)
-        if logging:
+        _logging = await self.bot.get_logging_channel(ctx.guild)
+        if _logging:
             amount = len(m)
             embed = discord.Embed(
                 color=discord.Color.blurple(),
@@ -135,7 +135,7 @@ class Mods:
                 name="Responsible Moderator",
                 value=f"{ctx.author}"
             )
-            await logging.send(embed=embed)
+            await _logging.send(embed=embed)
         await asyncio.sleep(2)
         self.bot.is_purging[ctx.channel.id] = False
 
