@@ -105,6 +105,11 @@ class Misc:
             if isinstance(c, commands.Group):
                 cmds += len(c.commands)
         if self.bot.official:
+            time_total = head.commit.committed_datetime.replace(tzinfo=None) - datetime.utcnow()
+            time_total = time_total.total_seconds()
+            t_hours, t_remain = divmod(int(time_total), 3600)
+            t_mins, t_secs = divmod(t_remain, 60)
+            t_days, t_hours = divmod(t_hours, 24)
             desc = f"""**Invite / Support**
 
 <:nano_hammer:483063870672338964> Release: **Pre-Release**
@@ -120,6 +125,8 @@ class Misc:
 <:nano_gear:483063870538252288> Cogs: **{len(self.bot.cogs)}**
 <:nano_info:483063870655823873> Latest Commit: [**{str(head.commit)[:7]}**]\
 (https://github.com/XuaTheGrate/Gamma-Bot/commit/{str(head.commit)})
+`{head.commit.message}`
+**{t_days}d, {t_hours}h, {t_mins}n, {t_secs}s** ago.
 """
         else:
             desc = f"""**Invite / Support**
