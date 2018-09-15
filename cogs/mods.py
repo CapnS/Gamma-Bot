@@ -85,7 +85,7 @@ class Mods:
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
     async def purge(self, ctx, amount: int, user: discord.Member=None):
-        amount = amount + 2
+        amount = amount + 1
         try:
             self.bot.is_purging[ctx.channel.id] = True
         except KeyError:
