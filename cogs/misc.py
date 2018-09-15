@@ -14,6 +14,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import git
+import pytz
 
 logger = logging.getLogger(__name__)
 process = psutil.Process()
@@ -105,7 +106,7 @@ class Misc:
             if isinstance(c, commands.Group):
                 cmds += len(c.commands)
         if self.bot.official:
-            time_total = head.commit.committed_datetime.replace(tzinfo=None) - datetime.utcnow()
+            time_total = head.commit.committed_datetime.replace(tzinfo=pytz.timezone("UTC")) - datetime.utcnow()
             time_total = time_total.total_seconds()
             t_hours, t_remain = divmod(int(time_total), 3600)
             t_mins, t_secs = divmod(t_remain, 60)
