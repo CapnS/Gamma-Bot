@@ -13,14 +13,10 @@ import logging
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import git
-import pytz
+import os
 
 logger = logging.getLogger(__name__)
 process = psutil.Process()
-
-repo = git.Repo('.')
-head = repo.head
 
 
 class Misc:
@@ -106,11 +102,16 @@ class Misc:
             if isinstance(c, commands.Group):
                 cmds += len(c.commands)
         if self.bot.official:
-            time_total = head.commit.committed_datetime.replace(tzinfo=pytz.timezone("UTC")) - datetime.utcnow()
-            time_total = time_total.total_seconds()
-            t_hours, t_remain = divmod(int(time_total), 3600)
-            t_mins, t_secs = divmod(t_remain, 60)
-            t_days, t_hours = divmod(t_hours, 24)
+            cmd = r'git show -s HEAD --format="[{0}](https://github.com/XuaTheGrate/Gamma-Bot/commit/%H){1}{2}%s' \
+                  r'{1}(%cr)"'
+            if os.name == "posix":
+                cmd = cmd.format(r"\`%h\`", r"\`\`\`", "fix\n")
+            else:
+                cmd = cmd.format(r"`%h`", r"```", "fix\n")
+            try:
+                rev = os.popen(cmd).read().strip()
+            except OSError:
+                rev = "An internal error occured while fetching the latest data."
             desc = f"""**Invite / Support**
 
 <:nano_hammer:483063870672338964> Release: **Pre-Release**
@@ -124,10 +125,7 @@ class Misc:
 <:nano_chart:483063870433263637> Memory Usage (%): **{int((int(process.memory_info()[0]/1024/1024)/750)*100)}%**
 <:nano_exclamation:483063871360466945> Commands: **{cmds}**
 <:nano_gear:483063870538252288> Cogs: **{len(self.bot.cogs)}**
-<:nano_info:483063870655823873> Latest Commit: [**{str(head.commit)[:7]}**]\
-(https://github.com/XuaTheGrate/Gamma-Bot/commit/{str(head.commit)})
-`{head.commit.message}`
-**{t_days}d, {t_hours}h, {t_mins}n, {t_secs}s** ago.
+<:nano_info:483063870655823873> Latest Commit: {rev}
 """
         else:
             desc = f"""**Invite / Support**
