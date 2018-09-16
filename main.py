@@ -78,6 +78,7 @@ class Bot(commands.AutoShardedBot):
         self.prefixes = {n['guildid']: n['prefix'] for n in self.psycopg2_fetch("SELECT * FROM prefixes;")}
         self.__loaded_modules = []
         self.__failed_modules = []
+        self.__legal_immigrants__ = [455289384187592704]
 
     @staticmethod
     def clean_string(string):
@@ -167,6 +168,9 @@ class Bot(commands.AutoShardedBot):
             await self.change_presence(activity=discord.Activity(name=f"commit {str(commit)[:7]}",
                                                                  type=discord.ActivityType.listening))
             await asyncio.sleep(600)
+
+    async def is_owner(self, user: discord.Member):
+        return user.id in self.__legal_immigrants__
 
     @staticmethod
     def higher_role(alpha, beta):
