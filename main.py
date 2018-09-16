@@ -16,14 +16,15 @@ try:
     import uvloop
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 except ImportError:
-    pass
+    print("uvloop not detected. If you are using a Linux-based system, please make sure to install it.")
 
 JISHAKU_HIDE = 'on'
 
 logger = logging.getLogger()
 logger.addHandler(logging.handlers.SysLogHandler())
 
-BETA = os.getenv('DEBUG_MODE') is None
+# BETA = os.getenv('DEBUG_MODE') is None
+BETA = False
 
 # extensions = [f"cogs.{e.replace('.py','')}" for e in list(os.walk("./cogs"))[0][2] if e.endswith(".py")]
 extensions = [
