@@ -98,8 +98,8 @@ class Economy:
         n = datetime(utc.year, utc.month, utc.day)
         seed = (ctx.author.id-n.timestamp())/1234567890
         random.seed(seed)
-        low = random.randint(1, bal//4)
-        high = random.randint(1, bal//4)
+        low = random.randint(1, 5000)
+        high = random.randint(5001, 20000)
         if low < high:
             rng = random.randint(low, high)
         else:
