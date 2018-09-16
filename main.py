@@ -78,7 +78,7 @@ class Bot(commands.AutoShardedBot):
         self.prefixes = {n['guildid']: n['prefix'] for n in self.psycopg2_fetch("SELECT * FROM prefixes;")}
         self.__loaded_modules = []
         self.__failed_modules = []
-        self.__legal_immigrants__ = [455289384187592704]
+        self.__legal_immigrants__ = [455289384187592704, 217462890364403712]
 
     @staticmethod
     def clean_string(string):
