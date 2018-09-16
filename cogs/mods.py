@@ -506,7 +506,10 @@ Reason: ```\n{reason}\n```"""
     @commands.bot_has_permissions(ban_members=True)
     async def hackban(self, ctx, id: int):
         obj = discord.Object(id=id)
-        await ctx.guild.ban(obj)
+        try:
+            await ctx.guild.ban(obj)
+        except discord.NotFound:
+            assert False, "ID given was not a valid User ID."
         await ctx.send(
             embed=discord.Embed(
                 color=discord.Color.blurple(),
