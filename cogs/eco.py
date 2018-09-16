@@ -90,6 +90,8 @@ class Economy:
     )
     @commands.cooldown(1, 86400, BucketType.user)
     async def daily(self, ctx):
+        if ctx.author.id == 368490099530268675:
+            return
         bal = await self.bal.get(ctx.author)
         assert bal is not None
         utc = datetime.utcnow()
@@ -115,7 +117,7 @@ class Economy:
         description="Test your luck against RNG itself!",
         brief="Try your luck!"
     )
-    @commands.cooldown(5, 15, BucketType.user)
+    @commands.cooldown(4, 30, BucketType.user)
     async def bet(self, ctx, amount: int):
         bal = await self.bal.get(ctx.author)
         assert bal is not None
