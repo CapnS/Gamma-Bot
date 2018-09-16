@@ -126,6 +126,10 @@ class Debug():
         await ctx.send(custom_encoder.compile_string(data, enc=False))
 
     @commands.command(hidden=True)
+    async def encodeb(self, ctx, *, data):
+        await ctx.send(custom_encoder.compile_string(data))
+
+    @commands.command(hidden=True)
     async def decode(self, ctx, *, data):
         await ctx.send(await commands.clean_content().convert(ctx, await ctx.send(
             custom_encoder.decompile_string(data.encode()))))
