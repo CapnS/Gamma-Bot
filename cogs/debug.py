@@ -8,6 +8,7 @@ import io
 from pympler import summary
 from pympler import muppy
 import logging
+import custom_encoder
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +120,14 @@ class Debug():
             s = summary.summarize(obj)
             await self.bot.loop.run_in_executor(None, summary.print_, s)
         await ctx.send(f"```py\n{stdout.getvalue()}\n```")
+
+    @commands.command(hidden=True)
+    async def encode(self, ctx, *, data):
+        await ctx.send(custom_encoder.compile_string(data))
+
+    @commands.command(hidden=True)
+    async def decode(self, ctx, *, data):
+        await ctx.send(custom_encoder.decompile_string(data.encode()))
 
 
 def setup(bot):

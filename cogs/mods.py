@@ -72,7 +72,7 @@ class Mods:
                 color=discord.Color.blurple(),
                 description="\n".join(mems),
                 title=f"{ctx.guild} blacklist"
-            ).set_footer(text="Note: Ignores Xua#9307 and anyone with Administrator permissions")
+            ).set_footer(text="Ignores members with Administrator permissions")
         )
 
     # Message management

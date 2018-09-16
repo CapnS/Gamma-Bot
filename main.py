@@ -373,11 +373,13 @@ class Bot(commands.AutoShardedBot):
         )
         embed.add_field(
             name="Before",
-            value=old.content
+            value=old.content,
+            inline=False
         )
         embed.add_field(
             name="After",
-            value=new.content
+            value=new.content,
+            inline=False
         )
         await channel.send(embed=embed)
 
@@ -397,11 +399,13 @@ class Bot(commands.AutoShardedBot):
             )
             embed.add_field(
                 name="Before",
-                value=old.nick
+                value=old.nick,
+                inline=False
             )
             embed.add_field(
                 name="After",
-                value=new.nick
+                value=new.nick,
+                inline=False
             )
             await channel.send(embed=embed)
         if old.avatar != new.avatar:
@@ -428,11 +432,13 @@ class Bot(commands.AutoShardedBot):
             )
             embed.add_field(
                 name="Before",
-                value=str(old)
+                value=str(old),
+                inline=False
             )
             embed.add_field(
                 name="After",
-                value=str(new)
+                value=str(new),
+                inline=False
             )
             await channel.send(embed=embed)
         if old.roles != new.roles:
@@ -449,13 +455,15 @@ class Bot(commands.AutoShardedBot):
                 if role not in new.roles:
                     embed.add_field(
                         name="Role Taken",
-                        value=f"{role.mention}"
+                        value=f"{role.mention}",
+                        inline=False
                     )
             for role in new.roles:
                 if role not in old.roles:
                     embed.add_field(
                         name="Role Given",
-                        value=f"{role.mention}"
+                        value=f"{role.mention}",
+                        inline=False
                     )
             await channel.send(embed=embed)
 
