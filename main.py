@@ -334,6 +334,18 @@ class Bot(commands.AutoShardedBot):
             description=f"{message.channel.mention}",
             timestamp=datetime.utcnow()
         )
+        file = None
+        if len(message.attachments) > 0:
+            attach = message.attachments[0]
+            if attach.height is not None:
+                await attach.save(f"tmp/{message.id}_{attach.filename}")
+                with open(f"tmp/{message.id}_{attach.filename}", "rb") as f:
+                    file = discord.File(f, filename="attachment.png")
+                embed.set_image(url="attachment://attachment.png")
+            else:
+                await attach.save(f"tmp/{message.id}_{attach.filename}")
+                with open(f"tmp/{message.id}_{attach.filename}", "rb") as f:
+                    file = discord.File(f, filename=attach.filename)
         embed.set_author(
             name="Message was deleted",
             icon_url=message.author.avatar_url_as(static_format="png")
@@ -342,7 +354,7 @@ class Bot(commands.AutoShardedBot):
             name="Content",
             value=message.content
         )
-        await channel.send(embed=embed)
+        await channel.send(embed=embed, file=file)
 
     async def on_message_edit(self, old, new):
         if old.content == new.content:
