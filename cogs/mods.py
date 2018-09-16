@@ -498,6 +498,22 @@ Reason: ```\n{reason}\n```"""
         )
         await channel.send(embed=embed)
 
+    @commands.command(
+        description="Ban a specific user id from this server. This works even if the user isn't in the server.",
+        brief="Hackily back a user."
+    )
+    @commands.has_permissions(ban_members=True)
+    @commands.bot_has_permissions(ban_members=True)
+    async def hackban(self, ctx, id: int):
+        obj = discord.Object(id=id)
+        await ctx.guild.ban(obj)
+        await ctx.send(
+            embed=discord.Embed(
+                color=discord.Color.blurple(),
+                description="<:nano_check:484247886461403144> Success."
+            )
+        )
+
     # Member muting / unmuting commands
     # NOTE: timers wont be available until
     # i get a dedicated vps
