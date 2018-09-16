@@ -127,7 +127,12 @@ class Debug():
 
     @commands.command(hidden=True)
     async def decode(self, ctx, *, data):
-        await ctx.send(custom_encoder.decompile_string(data.encode()))
+        await ctx.send(await commands.clean_content().convert(ctx, await ctx.send(
+            custom_encoder.decompile_string(data.encode()))))
+
+    @commands.command(hidden=True)
+    async def cleanup(self, ctx, amount: int=50):
+        pass
 
 
 def setup(bot):

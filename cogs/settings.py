@@ -35,7 +35,7 @@ class Settings:
         brief="Change the server wide prefix."
     )
     @commands.has_permissions(manage_guild=True)
-    async def prefix(self, ctx, *, prefix):
+    async def prefix(self, ctx, prefix):
         old = await self.bot.db.fetchval("SELECT prefix FROM prefixes WHERE guildid=$1;", ctx.guild.id)
         if not old:
             try:
