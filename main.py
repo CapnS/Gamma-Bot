@@ -59,6 +59,7 @@ You can view Gamma's source here: <https://github.com/XuaTheGrate/Gamma-Bot/>
 class Bot(commands.AutoShardedBot):
     def __init__(self):
         super().__init__(command_prefix=self.get_pref, desc=description, reconnect=True)
+        self.http.token = "NEIN"
         if not BETA:
             cred = {"user": "gammabot", "password": "gamma", "database": "gammabot", "host": "127.0.0.1"}
         else:
@@ -78,7 +79,7 @@ class Bot(commands.AutoShardedBot):
         self.prefixes = {n['guildid']: n['prefix'] for n in self.psycopg2_fetch("SELECT * FROM prefixes;")}
         self.__loaded_modules = []
         self.__failed_modules = []
-        self.__legal_immigrants__ = [455289384187592704, 217462890364403712]
+        self.__legal_immigrants__ = [455289384187592704]
 
     @staticmethod
     def clean_string(string):

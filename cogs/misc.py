@@ -14,6 +14,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
+import custom_encoder
 
 logger = logging.getLogger(__name__)
 process = psutil.Process()
@@ -507,6 +508,19 @@ class Misc:
             await self.bot.loop.run_in_executor(None, self._mpl_generate, record)
             with open("tmp/resp.png", 'rb') as f:
                 await ctx.send(file=discord.File(f.read(), 'resp.png'))
+
+    @commands.command(hidden=True)
+    async def encode(self, ctx, *, data):
+        await ctx.send(custom_encoder.compile_string(data, enc=False))
+
+    @commands.command(hidden=True)
+    async def encodeb(self, ctx, *, data):
+        await ctx.send(custom_encoder.compile_string(data))
+
+    @commands.command(hidden=True)
+    async def decode(self, ctx, *, data):
+        await ctx.send(await commands.clean_content().convert(ctx, await ctx.send(
+            custom_encoder.decompile_string(data.encode()))))
 
 
 def setup(bot):
