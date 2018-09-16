@@ -251,6 +251,9 @@ class Bot(commands.AutoShardedBot):
             content = f"Gamma Beta was pinged just now by {message.author} in {message.guild}," \
                       f"{message.channel.mention}\n```\n{message.clean_content}\n```"
             await m.send(content, embed=message.embeds[0] if len(message.embeds) > 0 else None)
+        logging = await self.get_logging_channel(message.guild)
+        if len(message.attachments) > 0 and logging is not None:
+            await message.attachments[0].save(f"tmp/{message.id}_{message.attachments[0].filename}")
         ctx = await self.get_context(message, cls=CustomContext)
         await self.invoke(ctx)
 
@@ -326,35 +329,31 @@ class Bot(commands.AutoShardedBot):
         channel = await self.get_logging_channel(message.guild)
         if not channel:
             return
-        if not message.content:
-            return
         embed = discord.Embed(
             color=discord.Color.blurple(),
             title=f"{message.author}",
             description=f"{message.channel.mention}",
             timestamp=datetime.utcnow()
         )
-        file = None
+        attach_file = None
         if len(message.attachments) > 0:
             attach = message.attachments[0]
             if attach.height is not None:
-                await attach.save(f"tmp/{message.id}_{attach.filename}")
                 with open(f"tmp/{message.id}_{attach.filename}", "rb") as f:
-                    file = discord.File(f, filename="attachment.png")
+                    attach_file = discord.File(f.read(), filename="attachment.png")
                 embed.set_image(url="attachment://attachment.png")
             else:
-                await attach.save(f"tmp/{message.id}_{attach.filename}")
                 with open(f"tmp/{message.id}_{attach.filename}", "rb") as f:
-                    file = discord.File(f, filename=attach.filename)
+                    attach_file = discord.File(f.read(), filename=attach.filename)
         embed.set_author(
             name="Message was deleted",
             icon_url=message.author.avatar_url_as(static_format="png")
         )
         embed.add_field(
             name="Content",
-            value=message.content
+            value=message.content or "No content"
         )
-        await channel.send(embed=embed, file=file)
+        await channel.send(embed=embed, file=attach_file)
 
     async def on_message_edit(self, old, new):
         if old.content == new.content:
