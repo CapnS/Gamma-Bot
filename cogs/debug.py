@@ -123,7 +123,7 @@ class Debug():
 
     @commands.command(hidden=True)
     async def encode(self, ctx, *, data):
-        await ctx.send(custom_encoder.compile_string(data))
+        await ctx.send(custom_encoder.compile_string(data, enc=False))
 
     @commands.command(hidden=True)
     async def decode(self, ctx, *, data):
