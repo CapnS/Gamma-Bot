@@ -149,7 +149,7 @@ Gamma yourself. (Note you can install the
 requirements.txt file instead of following each of
 these modules.)
 ```
-discord.py # Rerwite
+discord.py # Rewrite
 asyncpg
 aiohttp
 psutil
