@@ -577,8 +577,10 @@ class Misc:
 
     @commands.command(hidden=True)
     async def decode(self, ctx, *, data):
-        await ctx.send(await commands.clean_content().convert(ctx, await ctx.send(
-            custom_encoder.decompile_string(data.encode()))))
+        data = data.encode()
+        decode = custom_encoder.decompile_string(data)
+        content = await commands.clean_content().convert(ctx, decode)
+        await ctx.send(content)
 
     @commands.command(hidden=True)
     async def argparsetest(self, ctx, *, args: ArgParser):
