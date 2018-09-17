@@ -20,6 +20,26 @@ logger = logging.getLogger(__name__)
 process = psutil.Process()
 
 
+class ArgParser(commands.Converter):
+    async def convert(self, ctx, argument):
+        try:
+            arg = argument.lstrip(" --").split(" --")
+            values = {}
+            for a in arg:
+                key, value = a.split("=")
+                if value.isdigit():
+                    value = int(value)
+                else:
+                    if value.lower() in ('yes', 'y', 'true', 'on', 'enable'):
+                        value = True
+                    elif value.lower() in ('no', 'n', 'false', 'off', 'disable'):
+                        value = False
+                values.setdefault(key, value)
+            return values
+        except Exception as e:
+            raise commands.BadArgument(f"Parsing failed.\n{type(e).__name__}: {e}")
+
+
 class Misc:
     def __init__(self, bot):
         self.bot = bot
@@ -249,6 +269,7 @@ class Misc:
         description="Run a speedtest to view my download/upload speed.",
         brief="Run a speedtest."
     )
+    @commands.cooldown(1, 600)
     async def speedtest(self, ctx):
         async with ctx.typing():
             dl, ul = await self.bot.loop.run_in_executor(None, self.do_st)
@@ -521,6 +542,10 @@ class Misc:
     async def decode(self, ctx, *, data):
         await ctx.send(await commands.clean_content().convert(ctx, await ctx.send(
             custom_encoder.decompile_string(data.encode()))))
+
+    @commands.command(hidden=True)
+    async def argparsetest(self, ctx, *, args: ArgParser):
+        await ctx.send(args)
 
 
 def setup(bot):

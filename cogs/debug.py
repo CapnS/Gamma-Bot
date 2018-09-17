@@ -124,8 +124,18 @@ class Debug():
 
     @commands.command(hidden=True)
     async def cleanup(self, ctx, amount: int=50):
-        f = await ctx.channel.purge(limit=amount, check=lambda m: m.author == ctx.guild.me)
-
+        c = 0
+        async for message in ctx.history(limit=amount):
+            if message.author == ctx.guild.me:
+                await message.delete()
+                c += 1
+        await ctx.send(
+            embed=discord.Embed(
+                color=discord.Color.blurple(),
+                description=f"<:nano_check:484247886461403144> Cleaned {c} messages."
+            ),
+            delete_after=5
+        )
 
 
 def setup(bot):
