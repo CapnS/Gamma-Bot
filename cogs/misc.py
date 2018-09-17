@@ -562,7 +562,7 @@ class Misc:
     )
     async def pinggraph(self, ctx):
         async with ctx.typing():
-            record = await self.bot.db.fetch("SELECT * FROM websocket_latency;")
+            record = await self.bot.db.fetch("SELECT * FROM websocket_latency ORDER BY hour;")
             await self.bot.loop.run_in_executor(None, self._mpl_generate, record)
             with open("tmp/resp.png", 'rb') as f:
                 await ctx.send(file=discord.File(f.read(), 'resp.png'))
