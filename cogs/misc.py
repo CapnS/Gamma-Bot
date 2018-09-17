@@ -586,6 +586,15 @@ class Misc:
     async def argparsetest(self, ctx, *, args: ArgParser):
         await ctx.send(args)
 
+    @commands.command(hidden=True)
+    async def nano(self, ctx, value, *, args: ArgParser=None):
+        emote = discord.utils.get(self.bot.emojis, name=f"nano_{value}")
+        assert emote is not None, "No emote found."
+        if args is not None and args.get("raw") is not None:
+            await ctx.send(f"\\{emote}")
+        else:
+            await ctx.send(f"{emote}")
+
 
 def setup(bot):
     bot.remove_command("help")

@@ -1,4 +1,5 @@
 from discord.ext import commands
+from datetime import datetime
 import discord
 
 
@@ -43,9 +44,13 @@ class GammaSupport:
     async def update_recent_joined(self, member):
         data = await self.db.fetch("SELECT * FROM new_users ORDER BY joined DESC;")
         if len(data) < 5:
-            pass
+            # append a new user
+            await self.db.execute("INSERT INTO new_users VALUES ($1, $2);", member.id, datetime.utcnow())
         else:
-            pass
+            # delete last user
+            await self.db.execute("DELETE FROM new_users WHERE userid IN (SELECT userid FROM new_users "
+                                  "ORDER BY joined DESC LIMIT 1);")
+            await self.db.execute("INSERT INTO new_users VALUES ($1, $2);", member.id, datetime.utcnow())
 
     @staticmethod
     async def __local_check(ctx):
@@ -56,10 +61,14 @@ class GammaSupport:
             return
         await self._update_inv_cache()
         await self.wc.send(WelcomeMessage.replace("%usermention%", member.mention))
-        # await self.
+        # await self.update_recent_joined(member)
 
-    @commands.command()
-    async def sub(self, ctx, feed):
+    @commands.command(
+        description="Subscribe to a news feed. This only applies to the Gamma Support guild.",
+        brief="Subscribe to a news feed."
+    )
+    async def sub(self, ctx, feed=None):
+        assert feed is not None, "Valid subscriptions: `announcements`, `development`"
         assert feed in self.feeds, "Invalid subscription."
         if hasattr(self, f"{feed}_role"):
             role = getattr(self, f"{feed}_role")
@@ -76,6 +85,26 @@ class GammaSupport:
                 )
             )
 
+    @commands.command(
+        description="View your current subscriptions. Only applicable to the Gamma Support guild.",
+        brief="View your current subscriptions."
+    )
+    async def subs(self, ctx):
+        roles = ctx.author.roles
+        announce = discord.utils.get(roles, name="Announcements")
+        develop = discord.utils.get(roles, name="Development")
+        s = []
+        if announce:
+            s.append("Announcements")
+        if develop:
+            s.append("Development")
+        await ctx.send(
+            embed=discord.Embed(
+                color=discord.Color.blurple(),
+                description=f"<:nano_info:483063870655823873> You are subbed to {' and '.join(s)}." if s else
+                "<:nano_info:483063870655823873> You are not subscribed to any feeds."
+            )
+        )
 
 
 def setup(bot):
