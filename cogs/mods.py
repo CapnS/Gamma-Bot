@@ -1,5 +1,6 @@
 from discord.ext import commands
 from datetime import datetime
+from aiohttp.client_exceptions import InvalidURL
 import discord
 import asyncio
 import logging
@@ -599,6 +600,69 @@ Reason: ```\n{reason}\n```"""
             value=f"{ctx.author}"
         )
         await channel.send(embed=embed)
+
+    # emoji management
+    @commands.command(
+        description="Upload a custom emoticon to the server. Both you and the bot requires Manage Emojis permissions.",
+        brief="Upload a custom emote to the server.",
+        aliases=['emojiadd', 'emoteadd', 'addemote']
+    )
+    @commands.has_permissions(manage_emojis=True)
+    @commands.bot_has_permissions(manage_emojis=True)
+    async def addemoji(self, ctx, name, url=None):
+        assert url is not None or len(ctx.message.attachments) > 0, "You must give either a link or an attachment."
+        assert discord.utils.get(ctx.guild.emojis, name=name) is None, "An emoji by this name already exists."
+        if url is None:
+            attach = ctx.message.attachments[0]
+            assert attach.height is not None, "Attachment is not an image."
+            async with ctx.typing():
+                await attach.save(f"tmp/{ctx.guild.id}_{ctx.message.id}.png")
+                with open(f"tmp/{ctx.guild.id}_{ctx.message.id}.png", "rb") as f:
+                    try:
+                        emote = await ctx.guild.create_custom_emoji(name=name, image=f.read())
+                    except discord.HTTPException:
+                        assert False, "Failed to upload. Note that you cannot have spaces in the emoji name."
+                await ctx.send(
+                    embed=discord.Embed(
+                        color=discord.Color.blurple(),
+                        description=f"{emote} was successfully created."
+                    )
+                )
+        else:
+            try:
+                async with self.bot.session.get(url) as resp:
+                    assert resp.status == 200, "An unknown error has occured."
+                    data = await resp.read()
+                    try:
+                        emote = await ctx.guild.create_custom_emoji(name=name, image=data)
+                    except discord.HTTPException:
+                        assert False, "Failed to upload. Note that you cannot have spaces in the emoji name."
+                    await ctx.send(
+                        embed=discord.Embed(
+                            color=discord.Color.blurple(),
+                            description=f"{emote} was successfully created."
+                        )
+                    )
+            except InvalidURL:
+                assert False, "Invalid url entered."
+
+    @commands.command(
+        description="Delete a custom emote from the server. This is particularly useful for mobile users.",
+        brief="Delete a custom emote.",
+        aliases=['emojidelete', 'deleteemote', 'emotedelete']
+    )
+    @commands.has_permissions(manage_emojis=True)
+    @commands.bot_has_permissions(manage_messages=True)
+    async def deleteemoji(self, ctx, name):
+        emote = discord.utils.get(ctx.guild.emojis, name=name)
+        assert emote is not None, "An emote by that name was not found."
+        await emote.delete()
+        await ctx.send(
+            embed=discord.Embed(
+                color=discord.Color.blurple(),
+                description="<:nano_check:484247886461403144> Success."
+            )
+        )
 
 
 def setup(bot):
