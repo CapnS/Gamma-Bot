@@ -630,19 +630,20 @@ Reason: ```\n{reason}\n```"""
                 )
         else:
             try:
-                async with self.bot.session.get(url) as resp:
-                    assert resp.status == 200, "An unknown error has occured."
-                    data = await resp.read()
-                    try:
-                        emote = await ctx.guild.create_custom_emoji(name=name, image=data)
-                    except discord.HTTPException:
-                        assert False, "Failed to upload. Note that you cannot have spaces in the emoji name."
-                    await ctx.send(
-                        embed=discord.Embed(
-                            color=discord.Color.blurple(),
-                            description=f"{emote} was successfully created."
+                async with ctx.typing():
+                    async with self.bot.session.get(url) as resp:
+                        assert resp.status == 200, "An unknown error has occured."
+                        data = await resp.read()
+                        try:
+                            emote = await ctx.guild.create_custom_emoji(name=name, image=data)
+                        except discord.HTTPException:
+                            assert False, "Failed to upload. Note that you cannot have spaces in the emoji name."
+                        await ctx.send(
+                            embed=discord.Embed(
+                                color=discord.Color.blurple(),
+                                description=f"{emote} was successfully created."
+                            )
                         )
-                    )
             except InvalidURL:
                 assert False, "Invalid url entered."
 
