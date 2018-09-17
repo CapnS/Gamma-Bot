@@ -4,6 +4,8 @@ import discord
 
 GSGuild = 479413987633528842
 GSWelcome = 479491025296031764
+AnnouncementRole = 491148481726251009
+DevelopmentRole = 491148324976590848
 WelcomeMessage = """
 ---------------------------------------
 Welcome %usermention% to Gamma Support!
@@ -22,6 +24,9 @@ class GammaSupport:
         self._invite_cache = {}
         self.gs = None
         self.wc = None
+        self.announcements_role = None
+        self.development_role = None
+        self.feeds = ("announcements", "development")
         self.bot.loop.create_task(self.__ainit__())
 
     async def __ainit__(self):
@@ -29,6 +34,8 @@ class GammaSupport:
         self.gs = self.bot.get_guild(GSGuild)
         self.wc = self.gs.get_channel(GSWelcome)
         self._invite_cache = {invite.code: invite.uses for invite in await self.gs.invites()}
+        self.announcements_role = discord.utils.get(self.gs.roles, id=AnnouncementRole)
+        self.development_role = discord.utils.get(self.gs.roles, id=DevelopmentRole)
 
     async def _update_inv_cache(self):
         self._invite_cache = {invite.code: invite.uses for invite in await self.gs.invites()}
@@ -50,6 +57,25 @@ class GammaSupport:
         await self._update_inv_cache()
         await self.wc.send(WelcomeMessage.replace("%usermention%", member.mention))
         # await self.
+
+    @commands.command()
+    async def sub(self, ctx, feed):
+        assert feed in self.feeds, "Invalid subscription."
+        if hasattr(self, f"{feed}_role"):
+            role = getattr(self, f"{feed}_role")
+            if role in ctx.author.roles:
+                await ctx.author.remove_roles(role)
+                sub = "Unsubbed from"
+            else:
+                await ctx.author.add_roles(role)
+                sub = "Subbed to"
+            await ctx.send(
+                embed=discord.Embed(
+                    color=discord.Color.blurple(),
+                    description=f"<:nano_check:484247886461403144> {sub} `{feed.title()}`"
+                )
+            )
+
 
 
 def setup(bot):
