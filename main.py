@@ -76,6 +76,7 @@ class Bot(commands.AutoShardedBot):
         self.global_blacklist = [m['userid'] for m in self.psycopg2_fetch("SELECT userid FROM global_blacklist;")]
         self.is_purging = {}
         self.debug = BETA
+        self.xua = 455289384187592704
         self.prefixes = {n['guildid']: n['prefix'] for n in self.psycopg2_fetch("SELECT * FROM prefixes;")}
         self.__loaded_modules = []
         self.__failed_modules = []
@@ -269,6 +270,7 @@ class Bot(commands.AutoShardedBot):
 
     async def on_ready(self):
         self.official = self.get_guild(483063756948111372) is not None
+        self.xua = self.get_user(455289384187592704)
         self.loop.create_task(self.presence_updater())  # updates every 10 minutes
         self.loop.create_task(self._flush_all())  # updates every 12 hours
         self.loop.create_task(self.hourly_update())  # updates every hour
@@ -502,6 +504,72 @@ class Bot(commands.AutoShardedBot):
         )
         embed.set_thumbnail(url=member.avatar_url_as(static_format="png"))
         await channel.send(embed=embed)
+
+    async def on_guild_join(self, guild):
+        embed = discord.Embed(
+            color=discord.Color.blurple(),
+            title="I joined a new guild!",
+            timestamp=datetime.utcnow()
+        )
+        embed.set_author(
+            name=f"{guild.owner}",
+            icon_url=guild.owner.avatar_url_as(static_format="png")
+        )
+        embed.set_thumbnail(
+            url=guild.icon_url_as(format="png")
+        )
+        embed.add_field(
+            name="Guild Name",
+            value=f"{guild}"
+        )
+        embed.add_field(
+            name="Guild ID",
+            value=f"{guild.id}"
+        )
+        embed.add_field(
+            name="Total Members",
+            value=f"{guild.member_count}"
+        )
+        embed.add_field(
+            name="Total Channels",
+            value=f"{len(guild.channels)}"
+        )
+        emotes = [str(e) for e in guild.emojis]
+        if len("".join(emotes)) > 1024:
+            emotes = ['Too many to show']
+        embed.add_field(
+            name="Custom Emojis",
+            value="".join(emotes) or "None",
+            inline=False
+        )
+        roles = [r.name for r in guild.role_hierarchy if not r.is_default()]
+        embed.add_field(
+            name=f"Total Roles ({len(roles)})",
+            value=", ".join(roles),
+            inline=False
+        )
+        try:
+            invites = await guild.invites()
+        except discord.Forbidden:
+            invites = ["None"]
+        else:
+            invites = invites if invites != [] else ['None']
+        embed.add_field(
+            name="Invite link",
+            value=f"{invites[0]}",
+            inline=False
+        )
+        perms = dict(guild.me.guild_permissions)
+        keys = [f.replace("_", " ").title() for f in perms.keys() if perms[f] is True]
+        embed.add_field(
+            name="Allowed permissions",
+            value=", ".join(keys),
+            inline=False
+        )
+        embed.set_footer(
+            text="Joined at"
+        )
+        await self.xua.send(embed=embed)
 
 
 if __name__ == "__main__":
