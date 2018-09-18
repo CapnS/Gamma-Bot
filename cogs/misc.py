@@ -503,13 +503,13 @@ class Misc:
         req = {"raw": bool}
         args = ArgParser(flags=req).parse(args)
         if args.get("raw"):
-            await ctx.send(f"{user.avatar_url_as(format='png')}")
+            await ctx.send(f"{user.avatar_url_as(static_format='png')}")
         else:
             await ctx.send(
                 embed=discord.Embed(
                     color=discord.Color.blurple(),
-                    description=f"[**Link**]({user.avatar_url_as(format='png')})"
-                ).set_image(url=user.avatar_url_as(format='png'))
+                    description=f"[**Link**]({user.avatar_url_as(static_format='png')})"
+                ).set_image(url=user.avatar_url_as(static_format='png'))
             )
 
 
