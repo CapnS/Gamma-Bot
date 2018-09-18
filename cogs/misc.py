@@ -500,18 +500,24 @@ class Misc:
     )
     async def avatar(self, ctx, user: discord.Member=None, *, args=None):
         user = user or ctx.author
-        req = {"raw": bool}
+        req = {"raw": bool, "format": str, "static": bool, "size": int}
         args = ArgParser(flags=req).parse(args)
+        fmt = args.get("format")
+        fmt = fmt or "png"
+        assert fmt in ("png", "jpg", "webp"), "Invalid format."
+        static = args.get("static")
+        size = args.get("size") or 1024
+        avatar = user.avatar_url_as(static_format=fmt, size=size) if not static \
+            else user.avatar_url_as(format=fmt, size=size)
         if args.get("raw"):
-            await ctx.send(f"{user.avatar_url_as(static_format='png')}")
+            await ctx.send(f"{avatar}")
         else:
             await ctx.send(
                 embed=discord.Embed(
                     color=discord.Color.blurple(),
-                    description=f"[**Link**]({user.avatar_url_as(static_format='png')})"
+                    description=f"[**Link**]({avatar})"
                 ).set_image(url=user.avatar_url_as(static_format='png'))
             )
-
 
     @commands.command(hidden=True)
     async def encode(self, ctx, *, data):
