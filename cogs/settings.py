@@ -6,6 +6,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def xua_or_manage_guild():
+    async def predicate(ctx):
+        return ctx.author.id == 455289384187592704 or ctx.author.guild_permissions.manage_guild
+    return commands.check(predicate)
+
+
 class Settings:
     """
     Change server configuration.
@@ -19,7 +25,7 @@ class Settings:
         brief="Base command for all settings.",
         invoke_without_command=True
     )
-    @commands.has_permissions(manage_guild=True)
+    @xua_or_manage_guild()
     async def settings(self, ctx):
         prefix = await self.bot.get_pref(self.bot, ctx.message)
         await ctx.send(
