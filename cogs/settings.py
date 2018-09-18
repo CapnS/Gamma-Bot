@@ -25,7 +25,6 @@ class Settings:
         brief="Base command for all settings.",
         invoke_without_command=True
     )
-    @xua_or_manage_guild()
     async def settings(self, ctx):
         prefix = await self.bot.get_pref(self.bot, ctx.message)
         await ctx.send(
@@ -41,7 +40,7 @@ class Settings:
         description="Change the current server wide prefix.",
         brief="Change the server wide prefix."
     )
-    @commands.has_permissions(manage_guild=True)
+    @xua_or_manage_guild()
     async def prefix(self, ctx, prefix):
         old = await self.bot.db.fetchval("SELECT prefix FROM prefixes WHERE guildid=$1;", ctx.guild.id)
         if not old:
