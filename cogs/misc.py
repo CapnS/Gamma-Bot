@@ -520,6 +520,7 @@ class Misc:
         assert fmt in ("png", "jpg", "webp"), "Invalid format."
         static = args.get("static")
         size = args.get("size") or 1024
+        assert size in (16, 32, 64, 128, 256, 512, 1024), "Invalid size."
         avatar = user.avatar_url_as(static_format=fmt, size=size) if not static \
             else user.avatar_url_as(format=fmt, size=size)
         if args.get("raw"):
