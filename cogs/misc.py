@@ -21,6 +21,23 @@ logger = logging.getLogger(__name__)
 process = psutil.Process()
 
 
+# --- COMMAND FLAGS HERE --- #
+avatar_flags = """--raw: View the image unembedded.
+--size=<number>: View the image with a specific size.
+--format=<"png"/"jpg"/"webp">: View the image with a certain format.
+--static: View a gif avatar as an image avatar.
+"""
+
+invite_flags = """--raw: View the invite unembedded.
+--no-dm: Instead of DMing you the link, it will send the link to the channel.
+--no-perms: Will set the permissions to 0, meaning it wont create a new role upon joining your server.
+"""
+
+support_flags = """--raw: View the link unembedded.
+--no-dm: Instead of DMing you the link, it will send the link to the channel.
+"""
+
+
 class Misc:
     def __init__(self, bot):
         self.bot = bot
@@ -258,8 +275,7 @@ class Misc:
         await ctx.send("View my Trello board here: <https://trello.com/b/IAbwYujm/gamma-bot>")
 
     @commands.command(
-        description="Send you an invite link to my support server.\n\nValid flags:\n"
-                    "```\n--no-dm: Will send it to the current channel.\n--raw: Will send the link unembedded.```",
+        description=f"Send you an invite link to my support server.\n\nValid flags: ```\n{support_flags}\n```",
         brief="Message you a support link."
     )
     async def support(self, ctx, *, args=None):
@@ -280,10 +296,7 @@ class Misc:
             )
 
     @commands.command(
-        description="Send you a link to invite me to your server.\n\nValid flags:\n"
-                    "```\n--no-dm: Will send it to the current channel\n"
-                    "--raw: Will send the link unembedded.\n"
-                    "--no-perms: Will send the link without any permissions.```",
+        description=f"Send you a link to invite me to your server.\n\nValid flags: ```\n{invite_flags}\n```",
         brief="Message you my invite link."
     )
     async def invite(self, ctx, *, args=None):
@@ -495,7 +508,7 @@ class Misc:
                 await ctx.send(file=discord.File(f.read(), 'resp.png'))
 
     @commands.command(
-        description="View yours, or another members, avatar.\n\nValid flags:```\n--raw: View the image unembedded.\n```",
+        description=f"View yours, or another members, avatar.\n\nValid flags: ```\n{avatar_flags}\n```",
         brief="View a members avatar."
     )
     async def avatar(self, ctx, user: discord.Member=None, *, args=None):
