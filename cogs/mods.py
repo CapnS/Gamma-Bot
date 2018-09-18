@@ -148,7 +148,7 @@ class Mods:
         invoke_without_command=True
     )
     @commands.has_permissions(manage_guild=True)
-    async def warn(self, ctx, user: discord.Member, *, reason=None):
+    async def warn(self, ctx, user: discord.Member, *, reason="No reason specified"):
         warns = await self.bot.db.fetchval("SELECT warns FROM warnings WHERE userid=$1 AND guildid=$2;",
                                            user.id, ctx.guild.id)
         if warns is None:
@@ -162,7 +162,7 @@ class Mods:
                 embed=discord.Embed(
                     color=discord.Color.blurple(),
                     description=f"<:nano_exclamation:483063871360466945> You were warning in **{ctx.guild}**\n"
-                                f"Reason: **{reason or 'No reason specified'}**\n"
+                                f"Reason: **{reason}**\n"
                                 f"Moderator: **{ctx.author}**\n"
                                 f"Total warnings: **{len(warns)+1}**"
                 )
@@ -195,7 +195,7 @@ class Mods:
         )
         embed.add_field(
             name="Reason",
-            value=f"{reason or 'None provided.'}"
+            value=f"{reason}"
         )
         embed.set_footer(text=f"DMed? {dm}")
         await channel.send(embed=embed)
@@ -530,7 +530,7 @@ Reason: ```\n{reason}\n```"""
                     await ctx.guild.ban(mem, reason=f"Mass ban by {ctx.author}")
                     success.append(mem)
                 except Exception as e:
-                    fail.setdefault(mem, f"{type(e).__name__)}: {e}")
+                    fail.setdefault(mem, f"{type(e).__name__}: {e}")
         await ctx.send(
             embed=discord.Embed(
                 color=discord.Color.blurple(),

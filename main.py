@@ -198,6 +198,7 @@ class Bot(commands.AutoShardedBot):
                 self.load_extension(extension)
                 self.__loaded_modules.append(extension)
             except Exception as e:
+                traceback.print_exception(type(e), e, e.__traceback__)
                 self.__failed_modules.append((extension, f"{type(e).__name__}: {e}"))
         super().run(token)
 
