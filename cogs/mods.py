@@ -518,6 +518,30 @@ Reason: ```\n{reason}\n```"""
             )
         )
 
+    @commands.command()
+    @commands.has_permissions(ban_members=True)
+    @commands.bot_has_permissions(ban_members=True)
+    async def massban(self, ctx, *members: discord.Member):
+        success = []
+        fail = {}
+        for mem in members:
+            if self.bot.higher_role(ctx.author, mem):
+                try:
+                    await ctx.guild.ban(mem, reason=f"Mass ban by {ctx.author}")
+                    success.append(mem)
+                except Exception as e:
+                    fail.setdefault(mem, f"{type(e).__name__)}: {e}")
+        await ctx.send(
+            embed=discord.Embed(
+                color=discord.Color.blurple(),
+                description=f"<:nano_check:484247886461403144> Banned {len(success)}"
+            ).add_field(
+                name=f"Failed to ban {len(fail.keys())}",
+                value="\n".join([f"- {m}\n> {r}" for m, r in fail.items()])
+            ),
+            delete_after=4
+        )
+
     # Member muting / unmuting commands
     # NOTE: timers wont be available until
     # i get a dedicated vps
