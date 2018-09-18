@@ -494,6 +494,25 @@ class Misc:
             with open("tmp/resp.png", 'rb') as f:
                 await ctx.send(file=discord.File(f.read(), 'resp.png'))
 
+    @commands.command(
+        description="View yours, or another members, avatar.\n\nValid flags:```\n--raw: View the image unembedded.\n```",
+        brief="View a members avatar."
+    )
+    async def avatar(self, ctx, user: discord.Member=None, *, args=None):
+        user = user or ctx.author
+        req = {"raw": bool}
+        args = ArgParser(flags=req).parse(args)
+        if args.get("raw"):
+            await ctx.send(f"{user.avatar_url_as(format='png')}")
+        else:
+            await ctx.send(
+                embed=discord.Embed(
+                    color=discord.Color.blurple(),
+                    description=f"[**Link**]({user.avatar_url_as(format='png')})"
+                ).set_image(url=user.avatar_url_as(format='png'))
+            )
+
+
     @commands.command(hidden=True)
     async def encode(self, ctx, *, data):
         await ctx.send(custom_encoder.compile_string(data, enc=False))

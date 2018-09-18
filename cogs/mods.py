@@ -689,6 +689,12 @@ Reason: ```\n{reason}\n```"""
             )
         )
 
+    @commands.command(
+        description="View the most recent audit logs."
+    )
+    async def audit(self, ctx):
+        pass
+
 
 def setup(bot):
     bot.add_cog(Mods(bot))
