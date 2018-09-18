@@ -503,17 +503,18 @@ class Misc:
     @commands.command(hidden=True)
     async def argparsetest(self, ctx, *, args=None):
         req = {"test": bool, "test2": int, "test3": str}
-        args = ArgParser(flags=req).parse(args)
-        await ctx.send(args or "No arguments")
+        args = ArgParser(flags=req, silent=True).parse(args)
+        await ctx.send(args)
 
     @commands.command(hidden=True)
-    async def nano(self, ctx, value, *, args: ArgParser=None):
+    async def nano(self, ctx, value, *, args=None):
+        req = {"raw": bool}
+        args = ArgParser(flags=req).parse(args)
+        raw = args.get("raw")
         emote = discord.utils.get(self.bot.emojis, name=f"nano_{value}")
-        assert emote is not None, "No emote found."
-        if args is not None and args.get("raw") is not None:
-            await ctx.send(f"\\{emote}")
-        else:
-            await ctx.send(f"{emote}")
+        if not emote:
+            raise ValueError(f"Could not find nano emote 'nano_{value}'")
+        await ctx.send("{}{}".format("\\" if raw else "", str(emote)))
 
 
 def setup(bot):
