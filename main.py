@@ -11,6 +11,7 @@ import os
 import logging
 import logging.handlers
 import matplotlib
+import traceback
 matplotlib.use('Agg')
 try:
     import uvloop
@@ -570,6 +571,11 @@ class Bot(commands.AutoShardedBot):
             text="Joined at"
         )
         await self.xua.send(embed=embed)
+
+    async def on_error(self, event, *args, **kwargs):
+        exc = traceback.format_exc()
+        print(exc)
+        await self.xua.send(f"```py\n{exc}\n```")
 
 
 if __name__ == "__main__":

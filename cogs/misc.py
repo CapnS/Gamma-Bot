@@ -265,12 +265,19 @@ class Misc:
     async def support(self, ctx, *, args=None):
         req = {"no-dm": bool, "raw": bool}
         args = ArgParser(flags=req).parse(args)
-        if not args:
-            args = {"no-dm": False, "raw": False}
-
-
-
-# https://discordapp.com/api/oauth2/authorize?client_id=478437101122224128&permissions=8&scope=bot
+        no_dm = args.get("no-dm")
+        raw = args.get("raw")
+        dest = ctx if no_dm else ctx.author
+        if raw:
+            await dest.send("<https://discordapp.com/invite/JBQ2BEa>")
+        else:
+            await dest.send(
+                embed=discord.Embed(
+                    color=discord.Color.blurple(),
+                    description=f"[<:nano_info:483063870655823873> Click here to join the support guild.]"
+                                f"(https://discordapp.com/invite/JBQ2BE)"
+                )
+            )
 
     @commands.command(
         description="Send you a link to invite me to your server.\n\nValid flags:\n"
@@ -279,20 +286,22 @@ class Misc:
                     "--no-perms: Will send the link without any permissions.```",
         brief="Message you my invite link."
     )
-    async def invite(self, ctx, *, args: ArgParser=None):
-        if args is None:
-            args = {"no-dm": False, "raw": False, "no-perms": False}
-        no_dm = args.get("no-dm") or False
-        raw = args.get("raw") or False
-        no_perms = args.get("no-perms") or False
+    async def invite(self, ctx, *, args=None):
+        req = {"no-dm": bool, "raw": bool, "no-perms": bool}
+        args = ArgParser(flags=req).parse(args)
+        no_dm = args.get("no-dm")
+        raw = args.get("raw")
+        no_perms = args.get("no-perms")
         dest = ctx if no_dm else ctx.author
+        link = "https://discordapp.com/oauth2/authorize?client_id=478437101122224128&permissions=0&scope=bot" if \
+            no_perms else "https://discordapp.com/oauth2/authorize?client_id=478437101122224128&permissions=8&scope=bot"
         if raw:
-            await dest.send("https://discordapp.com/api/oauth2/"
-                            f"authorize?client_id=478437101122224128&permissions={0 if no_perms else 8}&scope=bot")
+            await dest.send(link)
         else:
             await dest.send(
                 embed=discord.Embed(
-
+                    color=discord.Color.blurple(),
+                    description=f"[<:nano_info:483063870655823873> Click here to invite me to your server.]({link})"
                 )
             )
 
