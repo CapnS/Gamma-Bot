@@ -22,7 +22,7 @@ class Tags:
         if tags[0]['name'] == tag:
             return tags[0]
         else:
-            assert False, "Tag not found. Did you mean\n"+"\n".join([tag['name'] for tag in tags])
+            assert False, "Tag not found. Did you mean\n" + "\n".join([tag['name'] for tag in tags])
 
     @commands.group(
         description="Base command for all tag related commands, also view existing tags.",
@@ -43,7 +43,7 @@ class Tags:
         tag = await self.bot.db.fetchval("SELECT response FROM tags WHERE name=$1 AND guildid=$2;", name, ctx.guild.id)
         assert tag is None, "Tag by that name already exists."
         assert not name.lower().startswith(('all', 'create', 'delete', 'edit', 'list', 'info')), "Tag starts with" \
-                                                                                                "a keyword."
+                                                                                                 "a keyword."
         query = "INSERT INTO tags VALUES ($1, $2, $3, $4, 0, $5);"
         await self.bot.db.execute(query, ctx.guild.id, ctx.author.id, name, response, datetime.utcnow())
         await ctx.send(
@@ -93,8 +93,8 @@ class Tags:
     async def all(self, ctx):
         tags = await self.bot.db.fetch("SELECT * FROM tags WHERE guildid=$1 ORDER BY uses DESC;", ctx.guild.id)
         assert tags, "There are no tags for this guild."
-        l = [f"{_+1}. {tags[_]['name']}" for _ in range(len(tags))]
-        await SimplePaginator(entries=l, colour=0x7289da, title=f"{ctx.guild} tags", length=20).paginate(ctx)
+        entries = [f"{_+1}. {tags[_]['name']}" for _ in range(len(tags))]
+        await SimplePaginator(entries=entries, colour=0x7289da, title=f"{ctx.guild} tags", length=20).paginate(ctx)
 
     @tag.command(
         description="View all of your tags, or all of someone elses tags.",
@@ -105,8 +105,8 @@ class Tags:
         tags = await self.bot.db.fetch("SELECT * FROM tags WHERE guildid=$1 AND ownerid=$2 ORDER BY uses DESC;",
                                        ctx.guild.id, user.id)
         assert tags is not None, f"{user} has no tags."
-        l = [f"{_+1}. {tags[_]['name']}" for _ in range(len(tags))]
-        await SimplePaginator(entries=l, colour=0x7289da, title=f"Tags for {user}", length=20).paginate(ctx)
+        entries = [f"{_+1}. {tags[_]['name']}" for _ in range(len(tags))]
+        await SimplePaginator(entries=entries, colour=0x7289da, title=f"Tags for {user}", length=20).paginate(ctx)
 
     @tag.command(
         description="View information about a certain tag.",

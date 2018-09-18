@@ -364,7 +364,7 @@ class Misc:
         embed.add_field(name="Role ID", value=f"{_role.id}")
         embed.add_field(name="Created At", value=f"""{_role.created_at.strftime("%d/%m/%y @ %H:%M%p")}""")
         perms = dict(_role.permissions)
-        allowed = [d.replace('_',' ').title() for d in perms.keys() if perms[d] is True and d in self.spec_perms]
+        allowed = [d.replace('_', ' ').title() for d in perms.keys() if perms[d] is True and d in self.spec_perms]
         if allowed:
             embed.add_field(name="Permissions", value=", ".join(allowed))
         embed.set_thumbnail(url=link)

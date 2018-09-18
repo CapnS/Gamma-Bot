@@ -11,3 +11,4 @@ GitPython
 pympler
 uvloop ; sys_platform == 'linux'
 matplotlib
+async_timeout

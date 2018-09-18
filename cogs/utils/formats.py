@@ -9,6 +9,7 @@ class Plural:
             return f'{v} {self.name}s'
         return f'{v} {self.name}'
 
+
 def human_join(seq, delim=', ', final='or'):
     size = len(seq)
     if size == 0:
@@ -21,6 +22,7 @@ def human_join(seq, delim=', ', final='or'):
         return f'{seq[0]} {final} {seq[1]}'
 
     return delim.join(seq[:-1]) + f' {final} {seq[-1]}'
+
 
 class TabularData:
     def __init__(self):

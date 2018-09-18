@@ -53,7 +53,7 @@ class Economy:
     async def __before_invoke(self, ctx):
         data = await self.bal.get(ctx.author)
         if data is None:
-            await self.bot.db.execute("INSERT INTO economy VALUES ($1, 1000);",ctx.author.id)
+            await self.bot.db.execute("INSERT INTO economy VALUES ($1, 1000);", ctx.author.id)
         loan = await self.bal.get_loan(ctx.author)
         if loan is not None:
             if data > loan:
@@ -245,7 +245,7 @@ class Economy:
         )
         await m.add_reaction(':nano_check:484247886461403144')
         try:
-            await self.bot.wait_for('reaction_add', timeout=15.0, check=lambda r, u: u==ctx.author and \
+            await self.bot.wait_for('reaction_add', timeout=15.0, check=lambda r, u: u == ctx.author and
                                     str(r) == '<:nano_check:484247886461403144>')
         except asyncio.TimeoutError:
             pass

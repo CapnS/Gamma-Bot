@@ -2,8 +2,8 @@ from discord.ext.commands import BadArgument
 
 
 class Argument:
-    def __init__(self, *, type=str, default=""):
-        self.type = type
+    def __init__(self, *, _type=str, default=""):
+        self.type = _type
         self.default = default
 
 

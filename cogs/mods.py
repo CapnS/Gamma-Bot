@@ -41,8 +41,8 @@ class Mods:
                 description=d
             )
         )
-        logging = await self.bot.get_logging_channel(ctx.guild)
-        if not logging:
+        channel = await self.bot.get_logging_channel(ctx.guild)
+        if not channel:
             return
         embed = discord.Embed(
             color=discord.Color.blurple(),
@@ -54,7 +54,7 @@ class Mods:
             name=f"User was {b}listed",
             icon_url=user.avatar_url_as(static_format="png")
         )
-        await logging.send(embed=embed)
+        await channel.send(embed=embed)
 
     @commands.command(
         aliases=['vbl', 'viewblacklist'],
@@ -177,8 +177,8 @@ class Mods:
         if not dm:
             embed.set_footer(text="!! I could not DM the user. The warn was recorded anyway. !!")
         await ctx.send(embed=embed, delete_after=10)
-        logging = await self.bot.get_logging_channel(ctx.guild)
-        if not logging:
+        channel = await self.bot.get_logging_channel(ctx.guild)
+        if not channel:
             return
         embed = discord.Embed(
             color=discord.Color.blurple(),
@@ -198,7 +198,7 @@ class Mods:
             value=f"{reason or 'None provided.'}"
         )
         embed.set_footer(text=f"DMed? {dm}")
-        await logging.send(embed=embed)
+        await channel.send(embed=embed)
 
     @warn.command(
         description="View warns for a specific user, or yourself.",
@@ -505,8 +505,8 @@ Reason: ```\n{reason}\n```"""
     )
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    async def hackban(self, ctx, id: int):
-        obj = discord.Object(id=id)
+    async def hackban(self, ctx, useridid: int):
+        obj = discord.Object(id=useridid)
         try:
             await ctx.guild.ban(obj)
         except discord.NotFound:

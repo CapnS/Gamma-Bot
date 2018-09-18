@@ -227,14 +227,14 @@ class Bot(commands.AutoShardedBot):
                 attach = message.attachments[0]
                 if attach.height is not None:
                     await attach.save('tmp/png.png')
-                    with open('tmp/png.png', 'rb') as f:
-                        file = discord.File(f.read(), "image.png")
+                    with open('tmp/png.png', 'rb') as file:
+                        file = discord.File(file.read(), "image.png")
                     embed.set_image(
                         url="attachment://image.png"
                     )
                 else:
-                    with open('tmp/'+attach.filename, 'rb') as f:
-                        file = discord.File(f.read(), attach.filename)
+                    with open('tmp/'+attach.filename, 'rb') as file:
+                        file = discord.File(file.read(), attach.filename)
             await self.send_xua(
                 embed=embed,
                 file=file
@@ -266,7 +266,8 @@ class Bot(commands.AutoShardedBot):
     async def hourly_update(self):
         while not self.is_closed():
             hour = datetime.now().hour
-            await self.db.execute("UPDATE websocket_latency SET ms=$1 WHERE hour=$2;", round(self.latency*1000, 2), hour)
+            await self.db.execute("UPDATE websocket_latency SET ms=$1 WHERE hour=$2;", round(self.latency*1000, 2),
+                                  hour)
             await asyncio.sleep(3600)
 
     async def on_ready(self):
@@ -321,7 +322,8 @@ class Bot(commands.AutoShardedBot):
         if self.debug:
             import traceback
             embed.set_footer(text=f"Debug: {type(exc).__name__}")
-            await self.send_xua("```py\n"+"".join(traceback.format_exception(type(exc), exc, exc.__traceback__))+"\n```")
+            await self.send_xua("```py\n"+"".join(traceback.format_exception(type(exc), exc,
+                                                                             exc.__traceback__))+"\n```")
         await ctx.send(embed=embed)
 
     async def get_logging_channel(self, guild):
@@ -346,12 +348,12 @@ class Bot(commands.AutoShardedBot):
         if len(message.attachments) > 0:
             attach = message.attachments[0]
             if attach.height is not None:
-                with open(f"tmp/{message.id}_{attach.filename}", "rb") as f:
-                    attach_file = discord.File(f.read(), filename="attachment.png")
+                with open(f"tmp/{message.id}_{attach.filename}", "rb") as file:
+                    attach_file = discord.File(file.read(), filename="attachment.png")
                 embed.set_image(url="attachment://attachment.png")
             else:
-                with open(f"tmp/{message.id}_{attach.filename}", "rb") as f:
-                    attach_file = discord.File(f.read(), filename=attach.filename)
+                with open(f"tmp/{message.id}_{attach.filename}", "rb") as file:
+                    attach_file = discord.File(file.read(), filename=attach.filename)
         embed.set_author(
             name="Message was deleted",
             icon_url=message.author.avatar_url_as(static_format="png")
@@ -561,7 +563,7 @@ class Bot(commands.AutoShardedBot):
             inline=False
         )
         perms = dict(guild.me.guild_permissions)
-        keys = [f.replace("_", " ").title() for f in perms.keys() if perms[f] is True]
+        keys = [p.replace("_", " ").title() for p in perms.keys() if perms[p] is True]
         embed.add_field(
             name="Allowed permissions",
             value=", ".join(keys),

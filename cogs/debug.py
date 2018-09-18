@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Debug():
+class Debug:
     def __init__(self, bot):
         self.bot = bot
         self._last_result = None
