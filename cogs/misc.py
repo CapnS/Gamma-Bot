@@ -3,6 +3,7 @@ from discord.ext.commands import clean_content
 from HelpPaginator import HelpPaginator
 from datetime import datetime
 from SimplePaginator import SimplePaginator
+from .utils.argparser import ArgParser
 import discord
 import psutil
 import json
@@ -18,31 +19,6 @@ import custom_encoder
 
 logger = logging.getLogger(__name__)
 process = psutil.Process()
-
-
-class ArgParser(commands.Converter):
-    async def convert(self, ctx, argument):
-        try:
-            arg = argument.lstrip(" --").split(" --")
-            values = {}
-            for a in arg:
-                f = a.split("=")
-                if len(f) == 2:
-                    key, value = f
-                else:
-                    key = f[0]
-                    value = ""
-                if value.isdigit():
-                    value = int(value)
-                else:
-                    if value.lower() in ('yes', 'y', 'true', 'on', 'enable'):
-                        value = True
-                    elif value.lower() in ('no', 'n', 'false', 'off', 'disable'):
-                        value = False
-                values.setdefault(key, value)
-            return values
-        except Exception as e:
-            raise commands.BadArgument(f"Parsing failed.\n{type(e).__name__}: {e}")
 
 
 class Misc:
@@ -282,101 +258,43 @@ class Misc:
         await ctx.send("View my Trello board here: <https://trello.com/b/IAbwYujm/gamma-bot>")
 
     @commands.command(
-        description="Send you an invite link to my support server.",
+        description="Send you an invite link to my support server.\n\nValid flags:\n"
+                    "```\n--no-dm: Will send it to the current channel.\n--raw: Will send the link unembedded.```",
         brief="Message you a support link."
     )
-    async def support(self, ctx):
-        try:
-            await ctx.author.send(
-                embed=discord.Embed(
-                    color=discord.Color.blurple(),
-                    description="<:nano_info:483063870655823873> [Click here to join the Support Guild]"
-                                "(https://discordapp.com/invite/JBQ2BEa)"
-                )
-            )
-            await ctx.send(
-                embed=discord.Embed(
-                    color=discord.Color.blurple(),
-                    description="<:nano_check:484247886461403144> Check your DM's for the link."
-                )
-            )
-        except discord.Forbidden:
-            await ctx.send(
-                embed=discord.Embed(
-                    color=discord.Color.blurple(),
-                    description="<:nano_info:483063870655823873> [Click here to join the Support Guild]"
-                                "(https://discordapp.com/invite/JBQ2BEa)"
-                )
-            )
+    async def support(self, ctx, *, args=None):
+        req = {"no-dm": bool, "raw": bool}
+        args = ArgParser(flags=req).parse(args)
+        if not args:
+            args = {"no-dm": False, "raw": False}
+
+
 
 # https://discordapp.com/api/oauth2/authorize?client_id=478437101122224128&permissions=8&scope=bot
 
     @commands.command(
-        description="Send you a link to invite me to your server.",
+        description="Send you a link to invite me to your server.\n\nValid flags:\n"
+                    "```\n--no-dm: Will send it to the current channel\n"
+                    "--raw: Will send the link unembedded.\n"
+                    "--no-perms: Will send the link without any permissions.```",
         brief="Message you my invite link."
     )
     async def invite(self, ctx, *, args: ArgParser=None):
-        if hasattr(args, "get"):  # if arguments were supplied
-            if args.get("no-dm") is not None:
-                if args.get("no-perms") is not None:
-                    await ctx.send(
-                        embed=discord.Embed(
-                            color=discord.Color.blurple(),
-                            description="[Use this link to invite me](https://discordapp.com/api/oauth2/authorize?"
-                                        "client_id=478437101122224128&permissions=0&scope=bot)"
-                        )
-                    )
-                else:
-                    await ctx.send(
-                        embed=discord.Embed(
-                            color=discord.Color.blurple(),
-                            description="[Use this link to invite me](https://discordapp.com/api/oauth2/authorize?"
-                                        "client_id=""478437101122224128&permissions=8&scope=bot)"
-                        )
-                    )
-            else:
-                if args.get("no-perms") is not None:
-                    try:
-                        await ctx.author.send(
-                            embed=discord.Embed(
-                                color=discord.Color.blurple(),
-                                description="[Use this link to invite me](https://discordapp.com/api/oauth2/authorize?"
-                                            "client_id=478437101122224128&permissions=0&scope=bot)"
-                            )
-                        )
-                        await ctx.send("\U0001f44c")
-                    except:
-                        assert False, "Something went wrong, try `invite --no-perms --no-dm`."
-                else:
-                    try:
-                        await ctx.author.send(
-                            embed=discord.Embed(
-                                color=discord.Color.blurple(),
-                                description="[Use this link to invite me](https://discordapp.com/api/oauth2/authorize?"
-                                            "client_id=478437101122224128&permissions=8&scope=bot)"
-                            )
-                        )
-                        await ctx.send("\U00014f4c")
-                    except:
-                        assert False, "Something went wrong, try `invite --no-dm`."
-        else:  # send link to author with perms
-            try:
-                await ctx.author.send(
-                    embed=discord.Embed(
-                        color=discord.Color.blurple(),
-                        description="[Use this link to invite me](https://discordapp.com/api/oauth2/authorize?"
-                                    "client_id=478437101122224128&permissions=8&scope=bot)"
-                    )
+        if args is None:
+            args = {"no-dm": False, "raw": False, "no-perms": False}
+        no_dm = args.get("no-dm") or False
+        raw = args.get("raw") or False
+        no_perms = args.get("no-perms") or False
+        dest = ctx if no_dm else ctx.author
+        if raw:
+            await dest.send("https://discordapp.com/api/oauth2/"
+                            f"authorize?client_id=478437101122224128&permissions={0 if no_perms else 8}&scope=bot")
+        else:
+            await dest.send(
+                embed=discord.Embed(
+
                 )
-                await ctx.send("\U0001f44c")
-            except:
-                await ctx.send(
-                    embed=discord.Embed(
-                        color=discord.Color.blurple(),
-                        description="[Use this link to invite me](https://discordapp.com/api/oauth2/authorize?"
-                                    "client_id=478437101122224128&permissions=8&scope=bot)"
-                    )
-                )
+            )
 
     @commands.command(
         description="Check the guilds user/bot count.",
@@ -583,8 +501,10 @@ class Misc:
         await ctx.send(content)
 
     @commands.command(hidden=True)
-    async def argparsetest(self, ctx, *, args: ArgParser):
-        await ctx.send(args)
+    async def argparsetest(self, ctx, *, args=None):
+        req = {"test": bool, "test2": int, "test3": str}
+        args = ArgParser(flags=req).parse(args)
+        await ctx.send(args or "No arguments")
 
     @commands.command(hidden=True)
     async def nano(self, ctx, value, *, args: ArgParser=None):
