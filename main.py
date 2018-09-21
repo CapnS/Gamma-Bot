@@ -259,8 +259,9 @@ class Bot(commands.AutoShardedBot):
             content = f"Gamma Beta was pinged just now by {message.author} in {message.guild}," \
                       f"{message.channel.mention}\n```\n{message.clean_content}\n```"
             await m.send(content, embed=message.embeds[0] if len(message.embeds) > 0 else None)
-        if len(message.attachments) > 0:
-            await message.attachments[0].save(f"tmp/{message.id}_{message.attachments[0].filename}")
+        if self.get_logging_channel(message.guild.id):
+            if len(message.attachments) > 0:
+                await message.attachments[0].save(f"tmp/{message.id}_{message.attachments[0].filename}")
         ctx = await self.get_context(message, cls=CustomContext)
         await self.invoke(ctx)
 
