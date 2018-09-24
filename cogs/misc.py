@@ -648,8 +648,8 @@ class Misc:
     async def paginatortest(self, ctx):
         from .utils.paginator import Paginator
         paginator = Paginator(self.bot)
-        for a in range(1, 4):
-            paginator.add_page(data=discord.Embed(color=discord.Color.blurple(), description='a', title='gay'+str(a)))
+        for a in range(4):
+            paginator.add_page(data=discord.Embed(color=discord.Color.blurple(), description=a, title='page '+str(a)))
         await paginator.do_paginator(ctx)
 
     @commands.command(hidden=True)

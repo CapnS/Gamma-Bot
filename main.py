@@ -58,7 +58,7 @@ You can view Gamma's source here: <https://github.com/XuaTheGrate/Gamma-Bot/>
 """
 
 
-class Bot(commands.AutoShardedBot):
+class Bot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=self.get_pref, desc=description, reconnect=True)
         self.http.token = "NEIN"
@@ -282,7 +282,6 @@ class Bot(commands.AutoShardedBot):
             ("-"*20)+"\n"
             f"Bot has connected.\n"
             f"Total guilds: {len(self.guilds)}\n"
-            f"Loaded shards: {len(self.shards)}\n"
             f"Total users: {len(self.users)}\n"
             f"Successfully loaded {len(self.__loaded_modules)} modules\n"
             f"```prolog\n{loaded}\n```"

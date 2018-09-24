@@ -70,7 +70,10 @@ class Paginator:
                 data = await bot_ctx.bot.wait_for('message', check=lambda m: m.author == user_ctx.author, timeout=15.0)
                 value = func(data.content)
                 await msg.delete()
-                await data.delete()
+                try:
+                    await data.delete()
+                except discord.Forbidden:
+                    pass
             except asyncio.TimeoutError:
                 return
         if value is True:
@@ -112,11 +115,15 @@ class Paginator:
 
     def next_page(self):
         """Switch to the next page, or do nothing if there are no more pages."""
-        return self.pages[min(self.pages.index(self.current_page)+1, self.page_count-1)]
+        data = self.pages[min(self.pages.index(self.current_page)+1, self.page_count-1)]
+        self.active = data
+        return data
 
     def previous_page(self):
         """Go back a page, or do nothing if you are at the start."""
-        return self.pages[max(self.pages.index(self.current_page)-1, 0)]
+        data = self.pages[max(self.pages.index(self.current_page)-1, 0)]
+        self.active = data
+        return data
 
     @staticmethod
     def cancel():
@@ -130,7 +137,7 @@ class Paginator:
             title="Paginator information",
             description="Heres how to use Xua's completely customized and interacble Paginator!\n\n" +
                         "\n".join([f"<{emote}>: {resp.__doc__}" for emote, resp in self.reactions.items()])
-        )
+        ).set_footer(text=f"You were on page \"{self.active.title}\" (#{self.pages.index(self.active)+1})")
         return embed
 
     def jump(self, page):
