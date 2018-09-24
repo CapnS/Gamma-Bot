@@ -1,6 +1,5 @@
 from discord.ext import commands
 from discord.ext.commands import clean_content
-from HelpPaginator import HelpPaginator
 from datetime import datetime
 from SimplePaginator import SimplePaginator
 from .utils.argparser import ArgParser
@@ -45,6 +44,7 @@ class Misc:
                            'manage_emojis', 'manage_guild', 'manage_messages', 'manage_nicknames', 'manage_roles',
                            'manage_webhooks', 'mention_everyone', 'move_members', 'mute_members',
                            'view_audit_log']
+        self.embed_sessions = []
 
     @staticmethod
     def time_difference(alpha, beta):
@@ -62,35 +62,6 @@ class Misc:
     async def ping(self, ctx):
         await ctx.send(embed=discord.Embed(color=discord.Color.blurple(),
                                            description=f":ping_pong: **{round(self.bot.latency*1000)}**ms"))
-    
-    @commands.command(
-        aliases=["?", "h"],
-        description="A help command designed to view help on your commands.",
-        brief="View help on a command."
-    )
-    async def help(self, ctx, command=None):
-        try:
-            if command is None:
-                p = await HelpPaginator.from_bot(ctx)
-            else:
-                entity = self.bot.get_cog(command) or self.bot.get_command(command)        
-                if entity.hidden:
-                    await ctx.send(embed=discord.Embed(description=f"<:nano_exclamation:483063871360466945> Command"
-                                                                   f" \"{command}\" does not exist.",
-                                                       color=discord.Color.blurple()))
-                    return
-                if entity is None:
-                    clean = command.replace('@', '@\u200b')
-                    return await ctx.send(f'Command or category "{clean}" not found.')
-                elif isinstance(entity, commands.Command):
-                    p = await HelpPaginator.from_command(ctx, entity)
-                else:
-                    p = await HelpPaginator.from_cog(ctx, entity)
-            await p.paginate()
-        except AttributeError:
-            await ctx.send(embed=discord.Embed(description=f"<:nano_exclamation:483063871360466945> Command"
-                                                           f" \"{command}\" does not exist.",
-                                               color=discord.Color.blurple()))
 
     @commands.command(
         aliases=['echo'],
@@ -533,6 +504,115 @@ class Misc:
                 ).set_image(url=user.avatar_url_as(static_format='png'))
             )
 
+    @staticmethod
+    def _repl_embed_title(embed, data):
+        assert len(data) <= 256, "Size too large."
+        embed.title = data
+        return embed
+
+    @staticmethod
+    def _repl_embed_description(embed, data):
+        assert len(data) <= 2048, "Size too large."
+        embed.description = data
+        return embed
+
+    @staticmethod
+    def _repl_embed_title_url(embed, data):
+        assert data.startswith("https://"), "Invalid link specified."
+        embed.url = data
+        return embed
+
+    async def _repl_embed_author(self, embed, data):
+        await ctx.send("`Note: to skip an option, type ❌.`")
+        await ctx.send("Author name?")
+        try:
+            msg = await self.bot.wait_for("message", check=lambda m: m.author == ctx.author, timeout=15.0)
+        except asyncio.TimeoutError:
+            return embed
+        author = msg.content if msg.content is not "❌" else None
+        await ctx.send("Author link?")
+        try:
+            msg = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author, timeout=15.0)
+        except asyncio.TimeoutError:
+            return embed
+        url = msg.content if msg.content is not "❌" else None
+        if url is not None:
+            assert url.startswith("https://"), "Invalid url specified."
+        await ctx.send("Author icon?")
+        try:
+            msg = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author, timeout=15.0)
+        except asyncio.TimeoutError:
+            return embed
+        icon = msg.content if msg.content is not "❌" else None
+        if icon is not None:
+            assert icon.startswith("https://") and any([icon.endswith(f) for f in (".jpg", ".png", ".webp", ".gif")]),\
+                "Invalid image url."
+        embed.set_author(name=author, url=url, icon_url=icon)
+        return embed
+
+    @staticmethod
+    def _repl_embed_color(embed, data):
+        if isinstance(data, str) and data.isdigit():
+            data = int(data)
+        assert isinstance(data, int), "Must be an integer."
+        embed.color = data
+        return embed
+
+    def _repl_embed_colour(self, embed, data):
+        return self._repl_embed_color(embed, data)
+
+    @staticmethod
+    def _repl_embed_field_add(embed, data):
+        pass
+
+    @staticmethod
+    def _repl_embed_thumbnail(embed, data):
+        assert data.startswith("https://") and any([data.endswith(f) for f in (".jpg", ".png", ".webp", ".gif")]),\
+            "Invalid image link sent."
+        embed.set_thumbnail(url=data)
+        return embed
+
+    def _repl_embed_parse_arg(self, data, embed):
+        split = data.split(" ")
+        func = split[1].replace(" ", "_")
+        data.remove(func)
+        data = " ".join(func)
+        if not hasattr(self, f"_repl_embed_{func}"):
+            raise ValueError("<:thonk:493282307176923149>")
+        f = getattr(self, f"_repl_embed_{func}")
+        return f(embed, data)
+
+    @commands.command(hidden=True)
+    async def interactableembed(self, ctx):
+        if ctx.author.id in self.embed_sessions:
+            await ctx.send("A session is already running.")
+            return
+        await ctx.send("Alright. Type `[exit]` to cancel the session.")
+        self.embed_sessions.append(ctx.author.id)
+        custom_embed = discord.Embed()
+        while True:
+            try:
+                msg = await ctx.bot.wait_for('message', check=lambda m: m.author == ctx.author, timeout=120.0)
+            except asyncio.TimeoutError:
+                await ctx.send("Timed out.")
+                self.embed_sessions.remove(ctx.author.id)
+                return  # return to cancel it completely
+            if msg.content == "[exit]":
+                self.embed_sessions.remove(ctx.author.id)
+                return  # as above
+            if msg.content == "finish":
+                break  # break to send the embed
+            try:
+                custom_embed = self._repl_embed_parse_arg(msg, custom_embed)
+            except ValueError as ve:
+                await ctx.send(ve)
+                continue  # skip and continue on
+            except AssertionError as ae:
+                await ctx.send(ae)
+                continue  # anything else must be forced into the console.
+        await ctx.send(embed=custom_embed)
+        self.embed_sessions.remove(ctx.author.id)
+
     @commands.command(hidden=True)
     async def encode(self, ctx, *, data):
         await ctx.send(custom_encoder.compile_string(data, enc=False))
@@ -564,9 +644,28 @@ class Misc:
             raise ValueError(f"Could not find nano emote 'nano_{value}'")
         await ctx.send("{}{}".format("\\" if raw else "", str(emote)))
 
+    @commands.command(hidden=True)
+    async def paginatortest(self, ctx):
+        from .utils.paginator import Paginator
+        paginator = Paginator(self.bot)
+        for a in range(1, 4):
+            paginator.add_page(data=discord.Embed(color=discord.Color.blurple(), description='a', title='gay'+str(a)))
+        await paginator.do_paginator(ctx)
+
+    @commands.command(hidden=True)
+    async def reactiontest(self, ctx):
+        msg = await ctx.send("REACT")
+        for a in range(5):
+            try:
+                reaction, user = await self.bot.wait_for(
+                    'reaction_add',
+                    check=lambda r, u: u == ctx.author and r.message == msg,
+                    timeout=15.0
+                )
+                await ctx.send(f"```\n{reaction}\n```")
+            except asyncio.TimeoutError:
+                return
+
 
 def setup(bot):
-    bot.remove_command("help")
-    bot.remove_command("?")
-    bot.remove_command("h")
     bot.add_cog(Misc(bot))

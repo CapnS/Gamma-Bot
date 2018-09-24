@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 class Mods:
     """
-    Make sure to use `help <command> to view more information on a certain command.
-    This will also view any specified subcommands for that command.
+Make sure to use `help <command> to view more information on a certain command.
+This will also view any specified subcommands for that command.
     """
     def __init__(self, bot):
         self.bot = bot
@@ -542,9 +542,7 @@ Reason: ```\n{reason}\n```"""
             delete_after=4
         )
 
-    # Member muting / unmuting commands
-    # NOTE: timers wont be available until
-    # i get a dedicated vps
+    # Member management
 
     @commands.command(
         description="Mute a member from typing in chat and speaking in voice channels.",
@@ -626,6 +624,7 @@ Reason: ```\n{reason}\n```"""
         await channel.send(embed=embed)
 
     # emoji management
+
     @commands.command(
         description="Upload a custom emoticon to the server. Both you and the bot requires Manage Emojis permissions.",
         brief="Upload a custom emote to the server.",
@@ -688,6 +687,26 @@ Reason: ```\n{reason}\n```"""
                 description="<:nano_check:484247886461403144> Success."
             )
         )
+
+    # channel
+
+    @commands.command(
+        description="Adjust the slowmode delay for the current channel.",
+        brief="Adjust slowmode delay.",
+        aliases=['sm']
+    )
+    @commands.has_permissions(manage_channels=True)
+    @commands.bot_has_permissions(manage_channels=True)
+    async def slowmode(self, ctx, count: int=0):
+        await ctx.channel.edit(slowmode_delay=count)
+        await ctx.send(
+            embed=discord.Embed(
+                color=discord.Color.blurple(),
+                description=f"<:nano_check:484247886461403144> Slowmode delay changed to `{count}`."
+            )
+        )
+
+    # other
 
     @commands.command(
         description="View the most recent audit logs."

@@ -32,6 +32,7 @@ extensions = [
     'cogs.debug',
     'cogs.eco',
     'cogs.gs',
+    'cogs.help',
     'cogs.misc',
     'cogs.music',
     'cogs.logging',
@@ -259,9 +260,6 @@ class Bot(commands.AutoShardedBot):
             content = f"Gamma Beta was pinged just now by {message.author} in {message.guild}," \
                       f"{message.channel.mention}\n```\n{message.clean_content}\n```"
             await m.send(content, embed=message.embeds[0] if len(message.embeds) > 0 else None)
-        if self.get_logging_channel(message.guild.id):
-            if len(message.attachments) > 0:
-                await message.attachments[0].save(f"tmp/{message.id}_{message.attachments[0].filename}")
         ctx = await self.get_context(message, cls=CustomContext)
         await self.invoke(ctx)
 
@@ -346,16 +344,6 @@ class Bot(commands.AutoShardedBot):
             description=f"{message.channel.mention}",
             timestamp=datetime.utcnow()
         )
-        attach_file = None
-        if len(message.attachments) > 0:
-            attach = message.attachments[0]
-            if attach.height is not None:
-                with open(f"tmp/{message.id}_{attach.filename}", "rb") as file:
-                    attach_file = discord.File(file.read(), filename="attachment.png")
-                embed.set_image(url="attachment://attachment.png")
-            else:
-                with open(f"tmp/{message.id}_{attach.filename}", "rb") as file:
-                    attach_file = discord.File(file.read(), filename=attach.filename)
         embed.set_author(
             name="Message was deleted",
             icon_url=message.author.avatar_url_as(static_format="png")
@@ -364,7 +352,7 @@ class Bot(commands.AutoShardedBot):
             name="Content",
             value=message.content or "No content"
         )
-        await channel.send(embed=embed, file=attach_file)
+        await channel.send(embed=embed)
 
     async def on_message_edit(self, old, new):
         if old.content == new.content:
