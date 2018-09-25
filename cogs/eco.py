@@ -71,7 +71,8 @@ class Economy:
     @commands.command(
         aliases=["$", "bal"],
         description="View yours, or another members balance.",
-        brief="View a members balance."
+        brief="View a members balance.",
+        usage="bal [user]"
     )
     async def balance(self, ctx, *, member: discord.Member=None):
         member = member or ctx.author
@@ -86,7 +87,8 @@ class Economy:
     
     @commands.command(
         description="Claim your daily reward!",
-        brief="Claim your daily reward!"
+        brief="Claim your daily reward!",
+        usage="daily"
     )
     @commands.cooldown(1, 86400, BucketType.user)
     async def daily(self, ctx):
@@ -113,7 +115,8 @@ class Economy:
 
     @commands.command(
         description="Test your luck against RNG itself!",
-        brief="Try your luck!"
+        brief="Try your luck!",
+        usage="bet <amount>"
     )
     @commands.cooldown(4, 30, BucketType.user)
     async def bet(self, ctx, amount: int):
@@ -141,7 +144,8 @@ class Economy:
     @commands.command(
         description="Try your luck and double your bet!",
         brief="Double or nothing.",
-        aliases=['doubleornothing', '50', '50/50']
+        aliases=['doubleornothing', '50', '50/50'],
+        usage="don <amount>"
     )
     async def don(self, ctx, amount: int):
         bal = await self.bal.get(ctx.author)
@@ -166,9 +170,11 @@ class Economy:
             )
 
     @commands.command(
-        description="View the leaderboard, whether its global or local.",
+        description="View the leaderboard, whether its global or local. The parameter \"mode\" can be either \"local\""
+                    " or \"global\". Defaults to \"local\".",
         brief="View the leaderboard.",
-        aliases=['lb']
+        aliases=['lb'],
+        usage="lb [mode]"
     )
     async def leaderboard(self, ctx, mode="local"):
         mode = mode.lower()
@@ -196,7 +202,8 @@ class Economy:
         description="Try to rob a person. The more money, the more likely you are to succeed.\nNOTE! If you fail, they"
                     "will be alerted!",
         brief="Try to rob another member.",
-        aliases=['rob']
+        aliases=['rob'],
+        usage="steal <amount> <user>"
     )
     async def steal(self, ctx, amount: int, user: discord.Member):
         pass
@@ -204,7 +211,8 @@ class Economy:
     @commands.command(
         description="Give some money to a user.",
         brief="Give some money to a user.",
-        aliases=['give']
+        aliases=['give'],
+        usage="give <user> <amount>"
     )
     async def transfer(self, ctx, user: discord.Member, amount: int):
         balance = await self.bal.get(ctx.author)
@@ -229,10 +237,12 @@ class Economy:
 
     @commands.command(
         description="Hello. I am Mr. L. Shark. you can request a loan for me, however depending on how I feel, you may"
-                    "need to pay a certain amount of interest in return.",
-        brief="Request a loan from Mr. L. Shark."
+                    "need to pay a certain amount of interest in return. You cannot loan more than $10k",
+        brief="Request a loan from Mr. L. Shark.",
+        usage="loan <amount>"
     )
     async def loan(self, ctx, amount: int):
+        assert amount <= 10000, "I can't give more than $10,000!"
         interest = await self.bal.get_loan(ctx.author)
         assert interest is None, "You already have a loan waiting."
         rate = await self.bal.get_rate()
@@ -263,7 +273,8 @@ class Economy:
 
     @commands.command(
         description="View detailed information about loans, how they work, the interest rates etc.",
-        brief="View information about loans."
+        brief="View information about loans.",
+        usage="loaninfo"
     )
     async def loaninfo(self, ctx):
         pass

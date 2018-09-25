@@ -13,7 +13,8 @@ class Logging:
     @commands.command(
         description="The base class for all logging-related commands.",
         brief="Adjust logging-related shit.",
-        aliases=['logging_create', 'lognew', 'logcreate', 'lnew', 'lcreate']
+        aliases=['logging_create', 'lognew', 'logcreate', 'lnew', 'lcreate'],
+        usage="lcreate [channel]"
     )
     @commands.has_permissions(manage_channels=True)
     async def logging_new(self, ctx, *, channel: discord.TextChannel=None):

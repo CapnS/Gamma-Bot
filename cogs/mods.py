@@ -21,7 +21,8 @@ This will also view any specified subcommands for that command.
     @commands.command(
         aliases=['bl', 'toggle'],
         description="Blacklist a certain user from using any of my commands.",
-        brief="Blacklist a user from my commands."
+        brief="Blacklist a user from my commands.",
+        usage="blacklist <user>"
     )
     @commands.has_permissions(manage_guild=True)
     async def blacklist(self, ctx, *, user: discord.Member):
@@ -59,7 +60,8 @@ This will also view any specified subcommands for that command.
     @commands.command(
         aliases=['vbl', 'viewblacklist'],
         description="View a list of people who are blacklisted from using my commands.",
-        brief="View the current guilds blacklist."
+        brief="View the current guilds blacklist.",
+        usage="vbl"
     )
     @commands.has_permissions(manage_guild=True)
     async def view_blacklist(self, ctx):
@@ -81,7 +83,8 @@ This will also view any specified subcommands for that command.
     @commands.command(
         aliases=['prune', 'clear'],
         description="Purge a set number of messages from a channel.",
-        brief="Purge some messages."
+        brief="Purge some messages.",
+        usage="purge <amount> [user]"
     )
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
@@ -145,7 +148,8 @@ This will also view any specified subcommands for that command.
     @commands.group(
         description="Warn a user for a certain thing.",
         brief="Warn a user",
-        invoke_without_command=True
+        invoke_without_command=True,
+        usage="warn <user> [reason]"
     )
     @commands.has_permissions(manage_guild=True)
     async def warn(self, ctx, user: discord.Member, *, reason="No reason specified"):
@@ -202,8 +206,10 @@ This will also view any specified subcommands for that command.
 
     @warn.command(
         description="View warns for a specific user, or yourself.",
-        brief="View warnings for a user."
+        brief="View warnings for a user.",
+        usage="warn list [user]"
     )
+    @commands.has_permissions(manage_guild=True)
     async def list(self, ctx, *, user: discord.Member=None):
         if not user or user == ctx.author:
             embed = discord.Embed(
@@ -254,7 +260,8 @@ This will also view any specified subcommands for that command.
 
     @warn.command(
         description="Clear a specific warning from a user.",
-        brief="Clear a warning."
+        brief="Clear a warning.",
+        usage="warn clear <user> [warn]"
     )
     @commands.has_permissions(manage_messages=True)
     async def clear(self, ctx, user: discord.Member, *, warn=None):
@@ -304,7 +311,8 @@ This will also view any specified subcommands for that command.
 
     @warn.command(
         description="Remove all warnings of a specified user.",
-        brief="Remove all warnings."
+        brief="Remove all warnings.",
+        usage="warn clearall <user>"
     )
     @commands.has_permissions(manage_messages=True)
     async def clearall(self, ctx, *, user: discord.Member):
@@ -342,7 +350,8 @@ This will also view any specified subcommands for that command.
 
     @commands.command(
         description="Kick a member from the guild, with optional reasoning.",
-        brief="Kick a member from the guild."
+        brief="Kick a member from the guild.",
+        usage="kick <user> [reason]"
     )
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
@@ -399,7 +408,8 @@ Reason: ```{reason}```,
 
     @commands.command(
         description="Ban a member from the guild, with optional reasoning.",
-        brief="Ban a mamber from the guild."
+        brief="Ban a mamber from the guild.",
+        usage="ban <user> [reason]"
     )
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
@@ -454,7 +464,8 @@ Reason: ```\n{reason}\n```""",
 
     @commands.command(
         description="Kick a user from the guild, and delete their messages. Reason optional.",
-        brief="Kick a user and delete their messages."
+        brief="Kick a user and delete their messages.",
+        usage="softban <user> [reason]"
     )
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(ban_members=True)
@@ -501,7 +512,8 @@ Reason: ```\n{reason}\n```"""
 
     @commands.command(
         description="Ban a specific user id from this server. This works even if the user isn't in the server.",
-        brief="Hackily back a user."
+        brief="Hackily back a user.",
+        usage="hackban <id>"
     )
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
@@ -518,7 +530,11 @@ Reason: ```\n{reason}\n```"""
             )
         )
 
-    @commands.command()
+    @commands.command(
+        brief="Quickly bans a bunch of users.",
+        description="Quickly bans a bunch of users. YOu must specify at least one person to ban.",
+        usage="massban <user1> [user2]..."
+    )
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
     async def massban(self, ctx, *members: discord.Member):
@@ -546,7 +562,8 @@ Reason: ```\n{reason}\n```"""
 
     @commands.command(
         description="Mute a member from typing in chat and speaking in voice channels.",
-        brief="Mute a member."
+        brief="Mute a member.",
+        usage="mute <user> [reason]"
     )
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
@@ -588,7 +605,8 @@ Reason: ```\n{reason}\n```"""
 
     @commands.command(
         description="Unmute a user, allowing them to type in chat and speak in voice.",
-        brief="Unmute a user."
+        brief="Unmute a user.",
+        usage="unmute <user>"
     )
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
@@ -628,7 +646,8 @@ Reason: ```\n{reason}\n```"""
     @commands.command(
         description="Upload a custom emoticon to the server. Both you and the bot requires Manage Emojis permissions.",
         brief="Upload a custom emote to the server.",
-        aliases=['emojiadd', 'emoteadd', 'addemote']
+        aliases=['emojiadd', 'emoteadd', 'addemote'],
+        usage="addemoji <name> <url or image attachment>"
     )
     @commands.has_permissions(manage_emojis=True)
     @commands.bot_has_permissions(manage_emojis=True)
@@ -673,7 +692,8 @@ Reason: ```\n{reason}\n```"""
     @commands.command(
         description="Delete a custom emote from the server. This is particularly useful for mobile users.",
         brief="Delete a custom emote.",
-        aliases=['emojidelete', 'deleteemote', 'emotedelete']
+        aliases=['emojidelete', 'deleteemote', 'emotedelete'],
+        usage="deleteemoji <name>"
     )
     @commands.has_permissions(manage_emojis=True)
     @commands.bot_has_permissions(manage_messages=True)
@@ -693,7 +713,8 @@ Reason: ```\n{reason}\n```"""
     @commands.command(
         description="Adjust the slowmode delay for the current channel.",
         brief="Adjust slowmode delay.",
-        aliases=['sm']
+        aliases=['sm'],
+        usage="slowmode <delay>"
     )
     @commands.has_permissions(manage_channels=True)
     @commands.bot_has_permissions(manage_channels=True)

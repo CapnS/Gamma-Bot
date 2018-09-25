@@ -57,7 +57,8 @@ class Misc:
     @commands.command(
         description="Check my latency to Discords web sockets.",
         brief="Check my connection time.",
-        aliases=["pong"]
+        aliases=["pong"],
+        usage="ping"
     )
     async def ping(self, ctx):
         await ctx.send(embed=discord.Embed(color=discord.Color.blurple(),
@@ -66,7 +67,8 @@ class Misc:
     @commands.command(
         aliases=['echo'],
         description="Relay a message back to you.",
-        brief="Repeat a message."
+        brief="Repeat a message.",
+        usage="echo <message...>"
     )
     async def say(self, ctx, *, message):
         d = await clean_content().convert(ctx, message)
@@ -75,7 +77,8 @@ class Misc:
     @commands.command(
         aliases=["statistics"],
         description="Use this command to view detailed statistics about Gamma.",
-        brief="View stats about Gamma."
+        brief="View stats about Gamma.",
+        usage="stats"
     )
     async def stats(self, ctx):
         users = set(m.name for m in self.bot.get_all_members() if m.status != discord.Status.offline)
@@ -134,7 +137,8 @@ class Misc:
     @commands.command(
         aliases=['cfact'],
         description='Give me a random cat fact.',
-        brief="Cat fact"
+        brief="Cat fact",
+        usage="catfact [id]"
     )
     async def catfact(self, ctx, _id: int=None):
         url = "http://api.levi506.net/fact/animal/cat"
@@ -165,7 +169,8 @@ class Misc:
         name="serverinfo",
         aliases=['sinfo', 'guildinfo', 'ginfo'],
         description="View detailed information about the guild.",
-        brief="View info about the guild."
+        brief="View info about the guild.",
+        usage="serverinfo"
     )
     async def server_info(self, ctx):
         color = 0
@@ -227,8 +232,9 @@ class Misc:
         return dl, ul
 
     @commands.command(
-        description="Run a speedtest to view my download/upload speed.",
-        brief="Run a speedtest."
+        description="Run a speedtest to view my download/upload speed. Can only be used every minute to save memory.",
+        brief="Run a speedtest.",
+        usage="speedtest"
     )
     @commands.cooldown(1, 600)
     async def speedtest(self, ctx):
@@ -240,14 +246,16 @@ class Misc:
     @commands.command(
         aliases=['todo'],
         description="View my trello board / to do list.",
-        brief="View my trello board / to do list."
+        brief="View my trello board / to do list.",
+        usage="trello"
     )
     async def trello(self, ctx):
         await ctx.send("View my Trello board here: <https://trello.com/b/IAbwYujm/gamma-bot>")
 
     @commands.command(
         description=f"Send you an invite link to my support server.\n\nValid flags: ```\n{support_flags}\n```",
-        brief="Message you a support link."
+        brief="Message you a support link.",
+        uaage="support [--no-dm] [--raw]"
     )
     async def support(self, ctx, *, args=None):
         req = {"no-dm": bool, "raw": bool}
@@ -268,7 +276,8 @@ class Misc:
 
     @commands.command(
         description=f"Send you a link to invite me to your server.\n\nValid flags: ```\n{invite_flags}\n```",
-        brief="Message you my invite link."
+        brief="Message you my invite link.",
+        usage="invite [--raw] [--no-dm] [--no-perms]"
     )
     async def invite(self, ctx, *, args=None):
         req = {"no-dm": bool, "raw": bool, "no-perms": bool}
@@ -291,7 +300,8 @@ class Misc:
 
     @commands.command(
         description="Check the guilds user/bot count.",
-        brief="Check the guilds user/bot count."
+        brief="Check the guilds user/bot count.",
+        usage="usercount"
     )
     async def usercount(self, ctx):
         mems = ctx.guild.members
@@ -315,7 +325,8 @@ class Misc:
 
     @commands.command(
         description="Get a lit of all the roles in the current guild.",
-        brief="Get all roles of the guild."
+        brief="Get all roles of the guild.",
+        usage="roles"
     )
     async def roles(self, ctx):
         roles = [role.mention for role in ctx.guild.role_hierarchy if not role.is_default()]
@@ -333,7 +344,8 @@ class Misc:
     @commands.command(
         aliases=['rinfo'],
         description="Get detailed information about a certain role.",
-        brief="Get a role information."
+        brief="Get a role information.",
+        usage="roleinfo <role>"
     )
     async def roleinfo(self, ctx, *, _role: discord.Role):
         colorz = _role.color if _role.color.value > 0 else discord.Color(value=16777215)
@@ -358,7 +370,8 @@ class Misc:
     @commands.command(
         aliases=["feedback", "suggest"],
         description="Send feedback about Gamma, whether its a bug or something nice.",
-        brief="Send feedback about Gamma."
+        brief="Send feedback about Gamma.",
+        usage="feedback <feedback...>"
     )
     async def bugreport(self, ctx, *, feedback=None):
         if not feedback:
@@ -413,7 +426,8 @@ class Misc:
 
     @commands.command(
         description="View Gamma's source code on Github.com",
-        brief="View Gamma's source code."
+        brief="View Gamma's source code.",
+        usage="source"
     )
     async def source(self, ctx):
         await ctx.send(
@@ -425,7 +439,8 @@ class Misc:
 
     @commands.command(
         description="View detailed information about a member.",
-        brief="View information about someone."
+        brief="View information about someone.",
+        usage="userinfo [user]"
     )
     async def userinfo(self, ctx, *, user: discord.Member=None):
         user = user or ctx.author
@@ -469,7 +484,8 @@ class Misc:
 
     @commands.command(
         description="View a detailed graph about my connection times.",
-        brief="Ping graph."
+        brief="Ping graph.",
+        usage="pinggraph"
     )
     async def pinggraph(self, ctx):
         async with ctx.typing():
@@ -480,7 +496,8 @@ class Misc:
 
     @commands.command(
         description=f"View yours, or another members, avatar.\n\nValid flags: ```\n{avatar_flags}\n```",
-        brief="View a members avatar."
+        brief="View a members avatar.",
+        usage="avatar [user] [--raw] [--format='png'/'jpg'/'webp'] [--static] [--size=1024]"
     )
     async def avatar(self, ctx, user: discord.Member=None, *, args=None):
         user = user or ctx.author

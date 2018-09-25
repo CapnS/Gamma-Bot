@@ -27,7 +27,8 @@ class Tags:
     @commands.group(
         description="Base command for all tag related commands, also view existing tags.",
         brief="Base tag command.",
-        invoke_without_command=True
+        invoke_without_command=True,
+        usage="tag [subcommand] [...]"
     )
     async def tag(self, ctx, *, tag):
         tag = await self.get_tag(ctx, tag)
@@ -36,8 +37,9 @@ class Tags:
         await ctx.send(tag['response'])
 
     @tag.command(
-        dewscription="Create a new tag for anyone on the server to enjoy.",
-        brief="Create a new tag."
+        description="Create a new tag for anyone on the server to enjoy.",
+        brief="Create a new tag.",
+        usage="tag create <name> <response...>"
     )
     async def create(self, ctx, name, *, response):
         tag = await self.bot.db.fetchval("SELECT response FROM tags WHERE name=$1 AND guildid=$2;", name, ctx.guild.id)
@@ -55,7 +57,8 @@ class Tags:
 
     @tag.command(
         description="Edit an existing tag. You must own the tag in order to edit it.",
-        brief="Edit an existing tag."
+        brief="Edit an existing tag.",
+        usage="tag edit <name> <new response...>"
     )
     async def edit(self, ctx, name, *, response):
         owner = await self.bot.db.fetchval("SELECT ownerid FROM tags WHERE name=$1 AND guildid=$2;", name, ctx.guild.id)
@@ -72,7 +75,8 @@ class Tags:
 
     @tag.command(
         description="Remove an existing tag. You must own the tag in order to delete it.",
-        brief="Delete an existing tag."
+        brief="Delete an existing tag.",
+        usage="tag delete <name>"
     )
     async def delete(self, ctx, *, name):
         owner = await self.bot.db.fetchval("SELECT ownerid FROM tags WHERE name=$1 AND guildid=$2;", name, ctx.guild.id)
@@ -88,7 +92,8 @@ class Tags:
 
     @tag.command(
         description="View all tags of the current guild.",
-        brief="View all tags."
+        brief="View all tags.",
+        usage="tag all"
     )
     async def all(self, ctx):
         tags = await self.bot.db.fetch("SELECT * FROM tags WHERE guildid=$1 ORDER BY uses DESC;", ctx.guild.id)
@@ -98,7 +103,8 @@ class Tags:
 
     @tag.command(
         description="View all of your tags, or all of someone elses tags.",
-        brief="View your tags."
+        brief="View your tags.",
+        usage="tag list [user]"
     )
     async def list(self, ctx, *, user: discord.Member=None):
         user = user or ctx.author
@@ -110,7 +116,8 @@ class Tags:
 
     @tag.command(
         description="View information about a certain tag.",
-        brief="View tag information."
+        brief="View tag information.",
+        usage="tag info <tag>"
     )
     async def info(self, ctx, *, tag):
         tag = await self.get_tag(ctx, tag)

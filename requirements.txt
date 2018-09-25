@@ -4,7 +4,6 @@ aiohttp
 psutil
 lxml
 psycopg2-binary
-youtube_dl
 speedtest-cli
 jishaku
 GitPython
@@ -12,3 +11,4 @@ pympler
 uvloop ; sys_platform == 'linux'
 matplotlib
 async_timeout
+youtube-dl

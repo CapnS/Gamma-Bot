@@ -249,7 +249,13 @@ class Music:
 
         return player
 
-    @commands.command(name='connect', aliases=['join'])
+    @commands.command(
+        name="connect",
+        aliases=['join'],
+        description="Summon me to a voice channel. YOu must either specify a channel or join a channel.",
+        brief="Summon me to a channel.",
+        usage="connect [channel]"
+    )
     async def connect_(self, ctx, *, channel: discord.VoiceChannel = None):
         if not channel:
             try:
@@ -274,7 +280,12 @@ class Music:
 
         await ctx.send(f'Connected to: **{channel}**', delete_after=20)
 
-    @commands.command(name='play', aliases=['sing'])
+    @commands.command(
+        name="play",
+        description="Give me a link and I will search the entirety of YouTube to play it.",
+        brief="Play a video from YouTube.",
+        usage="play <query>"
+    )
     async def play_(self, ctx, *, search: str):
         await ctx.trigger_typing()
 
@@ -291,7 +302,12 @@ class Music:
 
         await player.queue.put(source)
 
-    @commands.command(name='pause')
+    @commands.command(
+        name="pause",
+        description="Pause the currently playing song. This will only work if you are playing something.",
+        brief="Pause the current song.",
+        usage="pause"
+    )
     async def pause_(self, ctx):
         vc = ctx.voice_client
 
@@ -303,7 +319,12 @@ class Music:
         vc.pause()
         await ctx.send(f'**`{ctx.author}`**: Paused the song!')
 
-    @commands.command(name='resume')
+    @commands.command(
+        name="resume",
+        brief="Resume the current pauseed song.",
+        description="Resume the currently paused song. This will only work if there is something playing currently.",
+        usage="resume"
+    )
     async def resume_(self, ctx):
         vc = ctx.voice_client
 
@@ -315,7 +336,12 @@ class Music:
         vc.resume()
         await ctx.send(f'**`{ctx.author}`**: Resumed the song!')
 
-    @commands.command(name='skip')
+    @commands.command(
+        name="skip",
+        brief="Skip the current song.",
+        description="Skip the currently active playing song.",
+        usage="skip"
+    )
     async def skip_(self, ctx):
         vc = ctx.voice_client
 
@@ -330,7 +356,11 @@ class Music:
         vc.stop()
         await ctx.send(f'**`{ctx.author}`**: Skipped the song!')
 
-    @commands.command(name='queue', aliases=['q', 'playlist'])
+    @commands.command(
+        name="queue",
+        brief="View the current song queue.",
+        description="fuck this remind me to make my own one."
+    )
     async def queue_info(self, ctx):
         vc = ctx.voice_client
 
@@ -349,7 +379,12 @@ class Music:
 
         await ctx.send(embed=embed)
 
-    @commands.command(name='now_playing', aliases=['np', 'current', 'currentsong', 'playing'])
+    @commands.command(
+        name="new_playing",
+        aliases=['np'],
+        brief="fuck this",
+        description="no"
+    )
     async def now_playing_(self, ctx):
         vc = ctx.voice_client
 
@@ -369,7 +404,11 @@ class Music:
         player.np = await ctx.send(f'**Now Playing:** `{vc.source.title}` '
                                    f'requested by `{vc.source.requester}`')
 
-    @commands.command(name='volume', aliases=['vol'])
+    @commands.command(
+        name="volume",
+        aliases=['vol'],
+        description='no'
+    )
     async def change_volume(self, ctx, *, vol: float):
         vc = ctx.voice_client
 
@@ -387,7 +426,10 @@ class Music:
         player.volume = vol / 100
         await ctx.send(f'**`{ctx.author}`**: Set the volume to **{vol}%**')
 
-    @commands.command(name='stop')
+    @commands.command(
+        name='stop',
+        description='fuck'
+    )
     async def stop_(self, ctx):
         vc = ctx.voice_client
 

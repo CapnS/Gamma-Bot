@@ -30,7 +30,13 @@ class Debug:
             # remove `foo`
         return content.strip('` \n')
 
-    @commands.command(hidden=True)
+    @commands.command(
+        aliases=['gbl'],
+        brief="Add someone to the global blacklist.",
+        description="Globally blacklist / whitelist someone. "
+                    "They will never be allowed to use any of my commands unless you whitelist them.",
+        usage="gblacklist <user>"
+    )
     async def gblacklist(self, ctx, *, user: discord.Member):
         if user.id not in self.bot.global_blacklist:
             self.bot.global_blacklist.append(user.id)
@@ -45,7 +51,12 @@ class Debug:
             )
         )
 
-    @commands.command(hidden=True)
+    @commands.command(
+        brief="View the current global blacklist.",
+        description="View the current global blacklist.",
+        usage="view_gblacklist",
+        aliases=['vgbl']
+    )
     async def view_gblacklist(self, ctx):
         data = self.bot.global_blacklist
         mems = [" - " + str(self.bot.get_user(m)) for m in data]
@@ -57,12 +68,21 @@ class Debug:
             )
         )
     
-    @commands.command(hidden=True)
+    @commands.command(
+        brief="Reboot the bot.",
+        description="Reboot the bot.",
+        usage="reboot"
+    )
     async def reboot(self, ctx):
         await ctx.send("Restarting...")
         await self.bot.logout()
 
-    @commands.command(hidden=True)
+    @commands.command(
+        aliases=["structured_query_language"],
+        brief="Run an SQL query.",
+        description="Run an SQL query.",
+        usage="sql <query>"
+    )
     async def sql(self, ctx, *, query: str):
         """Run some SQL."""
         # the imports are here because I imagine some people would want to use
@@ -105,7 +125,11 @@ class Debug:
         else:
             await ctx.send(fmt)
     
-    @commands.command(hidden=True)
+    @commands.command(
+        brief="Run a command as another user.",
+        description="Run a command as another user.",
+        usage="runas <user> <command>"
+    )
     async def runas(self, ctx, who: Union[discord.Member, discord.User], *, command: str):
         msg = copy.copy(ctx.message)
         msg.author = who
@@ -113,22 +137,33 @@ class Debug:
         new_ctx = await self.bot.get_context(msg)
         await self.bot.invoke(new_ctx)
 
-    @commands.command(hidden=True)
+    @commands.command(
+        brief="Check current object usage.",
+        description="View global object usage. Running this command also flushes the memory.",
+        usage="usage"
+    )
     async def usage(self, ctx):
         stdout = io.StringIO()
-        with redirect_stdout(stdout):
-            obj = muppy.get_objects()
-            s = summary.summarize(obj)
-            await self.bot.loop.run_in_executor(None, summary.print_, s)
-        await ctx.send(f"```py\n{stdout.getvalue()}\n```")
+        async with ctx.typing():
+            with redirect_stdout(stdout):
+                obj = muppy.get_objects()
+                s = summary.summarize(obj)
+                await self.bot.loop.run_in_executor(None, summary.print_, s)
+            await ctx.send(f"```py\n{stdout.getvalue()}\n```")
 
-    @commands.command(hidden=True)
+    def cleanup_filter(self, message):
+        return message.author == message.guild.me
+
+    @commands.command(
+        brief="Cleanup the bots messages.",
+        usage="cleanup [amount]",
+        description="Cleanup the bots messages."
+    )
     async def cleanup(self, ctx, amount: int=50):
         c = 0
-        async for message in ctx.history(limit=amount):
-            if message.author == ctx.guild.me:
-                await message.delete()
-                c += 1
+        async for message in ctx.history(limit=amount).filter(self.cleanup_filter):
+            await message.delete()
+            c += 1
         await ctx.send(
             embed=discord.Embed(
                 color=discord.Color.blurple(),
@@ -136,6 +171,15 @@ class Debug:
             ),
             delete_after=5
         )
+
+    @commands.command(
+        brief="Pull the git repo and reboot.",
+        usage="update"
+    )
+    async def update(self, ctx):
+        await ctx.invoke(self.bot.get_command("jsk git"), code="pull")
+        await ctx.send("```prolog\nRestarting...\n```")
+        await self.bot.logout()
 
 
 def setup(bot):

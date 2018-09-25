@@ -64,8 +64,10 @@ class GammaSupport:
         # await self.update_recent_joined(member)
 
     @commands.command(
-        description="Subscribe to a news feed. This only applies to the Gamma Support guild.",
-        brief="Subscribe to a news feed."
+        description="Subscribe to a news feed. This only applies to the Gamma Support guild. Valid feeds are"
+                    " \"announcements\" and \"development\".",
+        brief="Subscribe to a news feed.",
+        usage="sub <feed>"
     )
     async def sub(self, ctx, feed=None):
         assert feed is not None, "Valid subscriptions: `announcements`, `development`"
@@ -87,7 +89,8 @@ class GammaSupport:
 
     @commands.command(
         description="View your current subscriptions. Only applicable to the Gamma Support guild.",
-        brief="View your current subscriptions."
+        brief="View your current subscriptions.",
+        usage="subs"
     )
     async def subs(self, ctx):
         roles = ctx.author.roles
