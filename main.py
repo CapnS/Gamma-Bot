@@ -27,20 +27,8 @@ logger.addHandler(logging.handlers.SysLogHandler())
 BETA = os.getenv('DEBUG_MODE') is None
 
 # extensions = [f"cogs.{e.replace('.py','')}" for e in list(os.walk("./cogs"))[0][2] if e.endswith(".py")]
-extensions = [
-    'cogs.autoresponder',
-    'cogs.debug',
-    'cogs.eco',
-    'cogs.gs',
-    'cogs.help',
-    'cogs.misc',
-    'cogs.music',
-    'cogs.logging',
-    'cogs.mods',
-    'cogs.settings',
-    'cogs.tags',
-    "jishaku"
-]
+extensions = ["cogs."+g.replace(".py", "") for g in os.listdir("cogs") if g.endswith(".py")]
+extensions.append('jishaku')
 
 with open("config/config.json", "rb") as f:
     config = json.loads(f.read())
@@ -50,6 +38,24 @@ class CustomContext(commands.Context):
     @property
     def secret(self):
         return "sneak"
+
+    async def error(self, error, text):
+        await self.send(
+            embed=discord.Embed(
+                color=discord.Color.red(),
+                title="<:nano_cross:484247886494695436> "+error,
+                description=text
+            )
+        )
+
+    async def info(self, notice, text):
+        await self.send(
+            embed=discord.Embed(
+                color=discord.Color.blue(),
+                title=notice,
+                description=text
+            )
+        )
 
 
 description = """
@@ -293,11 +299,7 @@ class Bot(commands.Bot):
         if isinstance(exc, commands.CommandInvokeError):
             exc = exc.original
         if type(exc) == commands.CheckFailure:
-            embed = discord.Embed(color=discord.Color.blurple(), 
-                                  description="<:nano_exclamation:483063871360466945> You do not have permission to run"
-                                              " this command.")
-            await ctx.send(embed=embed)
-            return
+            return await ctx.error("Invalid permissions", "You do not have permission to execute this command.")
         if isinstance(exc, commands.CommandNotFound):
             return
         if isinstance(exc, commands.CommandOnCooldown):
@@ -312,18 +314,8 @@ class Bot(commands.Bot):
                 desc = f"Try again in **{round(m)}m {round(s)}s**"
             else:
                 desc = f"Try again in **{round(s)}s**"
-            return await ctx.send(embed=discord.Embed(color=discord.Color.blurple(),
-                                                      description=f"<:nano_exclamation:483063871360466945>"
-                                                                  f" {desc}"))
-        nexc = str(exc)
-        embed = discord.Embed(color=discord.Color.blurple(), 
-                              description=f"<:nano_exclamation:483063871360466945> {nexc}")
-        if self.debug:
-            import traceback
-            embed.set_footer(text=f"Debug: {type(exc).__name__}")
-            await self.send_xua("```py\n"+"".join(traceback.format_exception(type(exc), exc,
-                                                                             exc.__traceback__))+"\n```")
-        await ctx.send(embed=embed)
+            return await ctx.error("You are on cooldown.", desc)
+        await ctx.error(type(exc).__name__, str(exc))
 
     async def get_logging_channel(self, guild):
         data = await self.db.fetchval("SELECT channelid FROM logging WHERE guildid=$1;", guild.id)
