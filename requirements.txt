@@ -12,3 +12,4 @@ uvloop ; sys_platform == 'linux'
 matplotlib
 async_timeout
 youtube-dl
+colorthief

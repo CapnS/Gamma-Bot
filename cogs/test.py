@@ -190,6 +190,10 @@ class Test:
         m = "my fucking nan"  # pycharm keeps getting pissy at me
         await ctx.send(f"Members {' '.join(str(m) for m in members)}\nextra {extra}")
 
+    @commands.command(hidden=True)
+    async def test(self, ctx):
+        await ctx.message.add_reaction("👌")
+
 
 def setup(bot):
     bot.add_cog(Test(bot))

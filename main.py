@@ -8,8 +8,6 @@ import json
 import git
 import asyncio
 import os
-import logging
-import logging.handlers
 import matplotlib
 import traceback
 matplotlib.use('Agg')
@@ -20,9 +18,6 @@ except ImportError:
     print("uvloop not detected. If you are using a Linux-based system, please make sure to install it.")
 
 JISHAKU_HIDE = 'on'
-
-logger = logging.getLogger()
-logger.addHandler(logging.handlers.SysLogHandler())
 
 BETA = os.getenv('DEBUG_MODE') is None
 

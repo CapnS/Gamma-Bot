@@ -9,14 +9,11 @@ import json
 import speedtest
 import asyncio
 import random
-import logging
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
-import custom_encoder
 
-logger = logging.getLogger(__name__)
 process = psutil.Process()
 
 
