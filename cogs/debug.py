@@ -5,8 +5,6 @@ import discord
 import traceback
 import copy
 import io
-from pympler import summary
-from pympler import muppy
 import logging
 
 
@@ -136,20 +134,6 @@ class Debug:
         msg.content = ctx.prefix + command
         new_ctx = await self.bot.get_context(msg)
         await self.bot.invoke(new_ctx)
-
-    @commands.command(
-        brief="Check current object usage.",
-        description="View global object usage. Running this command also flushes the memory.",
-        usage="usage"
-    )
-    async def usage(self, ctx):
-        stdout = io.StringIO()
-        async with ctx.typing():
-            with redirect_stdout(stdout):
-                obj = muppy.get_objects()
-                s = summary.summarize(obj)
-                await self.bot.loop.run_in_executor(None, summary.print_, s)
-            await ctx.send(f"```py\n{stdout.getvalue()}\n```")
 
     def cleanup_filter(self, message):
         return message.author == message.guild.me
