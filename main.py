@@ -262,7 +262,7 @@ class Bot(commands.Bot):
                       f"{message.channel.mention}\n```\n{message.clean_content}\n```"
             await m.send(content, embed=message.embeds[0] if len(message.embeds) > 0 else None)
         ctx = await self.get_context(message, cls=CustomContext)
-        await self.invoke(ctx)
+        await self.process_commands(ctx.message)
 
     async def hourly_update(self):
         while not self.is_closed():
@@ -293,24 +293,29 @@ class Bot(commands.Bot):
     async def on_command_error(self, ctx, exc):
         if isinstance(exc, commands.CommandInvokeError):
             exc = exc.original
-        if type(exc) == commands.CheckFailure:
-            return await ctx.error("Invalid permissions", "You do not have permission to execute this command.")
-        if isinstance(exc, commands.CommandNotFound):
-            return
+        if isinstance(exc, discord.HTTPException):
+            return await ctx.error(f"Error {exc.response}", exc.text)
+        if isinstance(exc, discord.Forbidden):
+            return await ctx.error("Missing Permissions", "You do not have permission to run this command.")
+        if isinstance(exc, discord.NotFound):
+            return await ctx.error("Not Found", "Nothing was found.")
+        if isinstance(exc, discord.InvalidArgument):
+            return await ctx.error("Invalid Argument", "An invalid argument was specified.")
+        if isinstance(exc, commands.MissingRequiredArgument):
+            return await ctx.error("Missing Required Argument", f"`{exc.param.name}` is a required argument that is missing.")
+        if isinstance(exc, commands.BadUnionArgument):
+            return await ctx.error("Failed to Convert", f"Could not convert `{param.name}` into `{', '.join(exc.converters)}`")
+        if isinstance(exc, commands.NoPrivateMessage):
+            return await ctx.error("Illegal Operation", "You may not use this commands in Direct Messages.")
+        if isinstance(exc, commands.CheckFailure):
+            return await ctx.error("Missing Permissions", "You do not have permission to run this command.")
         if isinstance(exc, commands.CommandOnCooldown):
-            h, r = divmod(exc.retry_after, 3600)
-            m, s = divmod(r, 60)
-            d, h = divmod(h, 24)
-            if d > 0:
-                desc = f"Try again in **{round(d)}d {round(h)}h {round(m)}m {round(s)}s**"
-            elif h > 0:
-                desc = f"Try again in **{round(h)}h {round(m)}m {round(s)}s**"
-            elif m > 0:
-                desc = f"Try again in **{round(m)}m {round(s)}s**"
-            else:
-                desc = f"Try again in **{round(s)}s**"
-            return await ctx.error("You are on cooldown.", desc)
-        await ctx.error(type(exc).__name__, str(exc))
+            return await ctx.error("Too quick", f"You cannot use this command for another `{round(exc.retry_after)}` seconds.")
+        if isinstance(exc, commands.MissingPermissions):
+            return await ctx.error("Missing Permissions", "You do not have permission to run this command.")
+        if isinstance(exc, commands.BotMissingPermissions):
+            return await ctx.error("Missing Permissions", "I do not have permission to continue this command.")
+        return  # ignore any other errors
 
     async def get_logging_channel(self, guild):
         data = await self.db.fetchval("SELECT channelid FROM logging WHERE guildid=$1;", guild.id)
@@ -521,7 +526,7 @@ class Bot(commands.Bot):
             value="".join(emotes) or "None",
             inline=False
         )
-        roles = [r.name for r in guild.role_hierarchy if not r.is_default()]
+        roles = [r.name for r in guild.roles if not r.is_default()]
         embed.add_field(
             name=f"Total Roles ({len(roles)})",
             value=", ".join(roles),
