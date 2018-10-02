@@ -81,6 +81,9 @@ class Bot(commands.Bot):
         self.debug = BETA
         self.xua = 455289384187592704
         self.prefixes = {n['guildid']: n['prefix'] for n in self.psycopg2_fetch("SELECT * FROM prefixes;")}
+        self.error_channel = 496492187270512670
+        self.data_transfer_channel = 496195772799516692
+        self._ignore_errors = commands.CommandNotFound, commands.NotOwner
         self.__loaded_modules = []
         self.__failed_modules = []
         self.__legal_immigrants__ = [455289384187592704]
@@ -261,8 +264,10 @@ class Bot(commands.Bot):
             content = f"Gamma Beta was pinged just now by {message.author} in {message.guild}," \
                       f"{message.channel.mention}\n```\n{message.clean_content}\n```"
             await m.send(content, embed=message.embeds[0] if len(message.embeds) > 0 else None)
-        ctx = await self.get_context(message, cls=CustomContext)
-        await self.process_commands(ctx.message)
+        await self.process_commands(message)
+    
+    async def get_context(self, message, **kwargs):
+        return await super().get_context(message, cls=CustomContext, **kwargs)
 
     async def hourly_update(self):
         while not self.is_closed():
@@ -293,6 +298,8 @@ class Bot(commands.Bot):
     async def on_command_error(self, ctx, exc):
         if isinstance(exc, commands.CommandInvokeError):
             exc = exc.original
+        if any([isinstance(exc, e) for e in self._ignore_errors]):
+            return
         if isinstance(exc, discord.HTTPException):
             return await ctx.error(f"Error {exc.response}", exc.text)
         if isinstance(exc, discord.Forbidden):
@@ -315,7 +322,7 @@ class Bot(commands.Bot):
             return await ctx.error("Missing Permissions", "You do not have permission to run this command.")
         if isinstance(exc, commands.BotMissingPermissions):
             return await ctx.error("Missing Permissions", "I do not have permission to continue this command.")
-        return  # ignore any other errors
+        return await ctx.error(type(exc).__name__, str(exc))
 
     async def get_logging_channel(self, guild):
         data = await self.db.fetchval("SELECT channelid FROM logging WHERE guildid=$1;", guild.id)
@@ -558,8 +565,22 @@ class Bot(commands.Bot):
     async def on_error(self, event, *args, **kwargs):
         exc = traceback.format_exc()
         print(exc)
-        await self.xua.send(f"```py\n{exc}\n```")
-
+        await self.get_channel(self.error_channel).send(f"Error in `{event}`\n```py\n{exc}\n```")
+    
+    async def get_data(self, ctx, data):
+        if not data.startswith("REQUEST["):
+            raise ValueError("Invalid data.")
+        pleasewait = await ctx.send("Please wait...")
+        transfer = self.get_channel(self.data_transfer_channel)
+        await transfer.send(data)
+        await asyncio.sleep(2)
+        ret = {}
+        async for message in transfer.history(limit=7):
+            if message.author.id == self.user.id:
+                break  # finish getting the messages once it finds itself
+            ret.setdefault(message.author.name, message.content)  # {"Tau": "RESPONSE[50ms]"}
+        await pleasewait.delete()
+        return ret
 
 if __name__ == "__main__":
     if BETA:

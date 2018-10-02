@@ -164,7 +164,24 @@ class Debug:
         await ctx.invoke(self.bot.get_command("jsk git"), code="pull")
         await ctx.send("```prolog\nRestarting...\n```")
         await self.bot.logout()
-
+    
+    def cleanup_response(self, resp):
+        return resp.strip("RESPONSE[]").split(",")
+    
+    @commands.command(
+        brief="View all bot statistics.",
+        usage="global_statistics"
+    )
+    async def global_statistics(self, ctx):
+        data = await self.bot.get_data(ctx, "REQUEST[latency,usage_memory,usage_cpu,shards,guilds]")
+        embed = discord.Embed(color=discord.Color.blurple(), title="Global Statistic Usage", description="Response Time | Memory Usage | CPU Usage | Shard Count | Guild Count")
+        com = ["Tau", "Lambda", "Gamma", "Omicron", "Sigma", "Zeta"]
+        for name, response in data.items():
+            com.remove(name)
+            embed.add_field(name=name,value=" | ".join(f for f in self.cleanup_response(response)), inline=False)
+        for value in com:
+            embed.add_field(name=value, value="No response...", inline=False)
+        await ctx.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(Debug(bot))
