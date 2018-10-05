@@ -47,12 +47,12 @@ class Settings:
         old = await self.bot.db.fetchval("SELECT prefix FROM prefixes WHERE guildid=$1;", ctx.guild.id)
         if not old:
             try:
-                await self.bot.db.execute("INSERT INTO prefixes VALUES ($1, $2);", ctx.guild.id, prefix)
+                await self.bot.db.execute("INSERT INTO prefixes VALUES ($1, $2, $3);", ctx.bot.user.id, ctx.guild.id, prefix)
             except SDRTE:
                 assert False, "Maximum length for prefixes is 3 characters."
         else:
             try:
-                await self.bot.db.execute("UPDATE prefixes SET prefix=$1 WHERE guildid=$2;", prefix, ctx.guild.id)
+                await self.bot.db.execute("UPDATE prefixes SET prefix=$1 WHERE guildid=$2 AND bot=$3;", prefix, ctx.guild.id, ctx.bot.user.id)
             except SDRTE:
                 assert False, "Maximum length for prefixes is 3 characters."
         await ctx.send(
