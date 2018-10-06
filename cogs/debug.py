@@ -175,10 +175,11 @@ class Debug:
     async def global_statistics(self, ctx):
         data = await self.bot.get_data(ctx, "REQUEST[latency,usage_memory,usage_cpu,shards,guilds]")
         embed = discord.Embed(color=discord.Color.blurple(), title="Global Statistic Usage", description="Response Time | Memory Usage | CPU Usage | Shard Count | Guild Count")
-        com = ["Tau", "Lambda", "Gamma", "Omicron", "Sigma", "Zeta"]
+        com = ["Tau", "Lambda", "Omicron", "Sigma", "Zeta"]
         for name, response in data.items():
             com.remove(name)
             embed.add_field(name=name,value=" | ".join(f for f in self.cleanup_response(response)), inline=False)
+        embed.add_field(name="Gamma", value=f"{round(self.bot.latency*1000)}ms | {round(self.bot.process.memory_info().rss/(1024**2))}mb | {self.bot.process.cpu_percent()}% | {self.bot.shard_count or 0} | {len(self.bot.guilds)}", inline=False)
         for value in com:
             embed.add_field(name=value, value="No response...", inline=False)
         await ctx.send(embed=embed)

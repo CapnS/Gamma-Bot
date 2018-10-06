@@ -10,6 +10,7 @@ import asyncio
 import os
 import matplotlib
 import traceback
+import psutil
 matplotlib.use('Agg')
 try:
     import uvloop
@@ -84,9 +85,10 @@ class Bot(commands.Bot):
         self.error_channel = 496492187270512670
         self.data_transfer_channel = 496195772799516692
         self._ignore_errors = commands.CommandNotFound, commands.NotOwner
-        self.__loaded_modules = []
-        self.__failed_modules = []
-        self.__legal_immigrants__ = [455289384187592704]
+        self.process = psutil.Process()
+        self._loaded_modules = []
+        self._failed_modules = []
+        self._legal_immigrants = [455289384187592704]
 
     @staticmethod
     def clean_string(string):
@@ -178,7 +180,7 @@ class Bot(commands.Bot):
             await asyncio.sleep(600)
 
     async def is_owner(self, user: discord.Member):
-        return user.id in self.__legal_immigrants__
+        return user.id in self._legal_immigrants
 
     @staticmethod
     def higher_role(alpha, beta):
@@ -201,10 +203,10 @@ class Bot(commands.Bot):
         for extension in extensions:
             try:
                 self.load_extension(extension)
-                self.__loaded_modules.append(extension)
+                self._loaded_modules.append(extension)
             except Exception as e:
                 traceback.print_exception(type(e), e, e.__traceback__)
-                self.__failed_modules.append((extension, f"{type(e).__name__}: {e}"))
+                self._failed_modules.append((extension, f"{type(e).__name__}: {e}"))
         super().run(token)
 
     async def logout(self):
@@ -282,16 +284,16 @@ class Bot(commands.Bot):
         self.loop.create_task(self.presence_updater())  # updates every 10 minutes
         self.loop.create_task(self._flush_all())  # updates every 12 hours
         self.loop.create_task(self.hourly_update())  # updates every hour
-        loaded = '\n'.join(self.__loaded_modules)
-        failed = '\n'.join([f"> {e[0]}\n- {e[1]}" for e in self.__failed_modules])
+        loaded = '\n'.join(self._loaded_modules)
+        failed = '\n'.join([f"> {e[0]}\n- {e[1]}" for e in self._failed_modules])
         await self.send_xua(
             ("-"*20)+"\n"
             f"Bot has connected.\n"
             f"Total guilds: {len(self.guilds)}\n"
             f"Total users: {len(self.users)}\n"
-            f"Successfully loaded {len(self.__loaded_modules)} modules\n"
+            f"Successfully loaded {len(self._loaded_modules)} modules\n"
             f"```prolog\n{loaded}\n```"
-            f"Failed to load {len(self.__failed_modules)} modules\n"
+            f"Failed to load {len(self._failed_modules)} modules\n"
             f"```prolog\n{failed}\n```"
         )
     
