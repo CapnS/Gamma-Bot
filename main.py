@@ -81,7 +81,7 @@ class Bot(commands.Bot):
         self.is_purging = {}
         self.debug = BETA
         self.xua = 455289384187592704
-        self.prefixes = {n['guildid']: n['prefix'] for n in self.psycopg2_fetch("SELECT * FROM prefixes;")}
+        self.prefixes = {n['guildid']: n['prefix'] for n in self.psycopg2_fetch("SELECT * FROM prefixes WHERE bot=478437101122224128;")}
         self.error_channel = 496492187270512670
         self.data_transfer_channel = 496195772799516692
         self._ignore_errors = commands.CommandNotFound, commands.NotOwner
@@ -154,7 +154,7 @@ class Bot(commands.Bot):
             await self.db.execute("INSERT INTO global_blacklist VALUES ($1);", userid)
 
     async def _flush_prefixes(self):
-        data = await self.db.fetch("SELECT * FROM prefixes;")
+        data = await self.db.fetch("SELECT * FROM prefixes WHERE bot=478437101122224128;")
         self.prefixes = {}
         for p in data:
             self.prefixes.setdefault(p['guildid'], p['prefix'])
