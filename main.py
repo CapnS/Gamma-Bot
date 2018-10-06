@@ -152,7 +152,7 @@ class Bot(commands.Bot):
             await self.db.execute("INSERT INTO global_blacklist VALUES ($1);", userid)
 
     async def _flush_prefixes(self):
-        data = await self.db.fetch("SELECT * FROM prefixes;")
+        data = await self.db.fetch("SELECT * FROM prefixes WHERE bot=478437101122224128;")
         self.prefixes = {}
         for p in data:
             self.prefixes.setdefault(p['guildid'], p['prefix'])
