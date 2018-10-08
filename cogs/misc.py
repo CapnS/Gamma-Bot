@@ -172,7 +172,7 @@ class Misc:
     async def server_info(self, ctx):
         color = 0
         while color == 0:
-            color = random.choice(ctx.guild.role_hierarchy).color.value
+            color = random.choice(ctx.guild.roles).color.value
         embed = discord.Embed(
             color=color
         )
