@@ -1,6 +1,7 @@
-# measurement
+# time
 import time
 start = time.perf_counter()
+from datetime import datetime
 
 # discord
 from discord.ext import commands
@@ -12,7 +13,7 @@ import json
 import asyncio
 
 # utilities
-from cogs.utils import checks, context
+from utils import checks, context
 
 # extra
 import os
@@ -21,7 +22,7 @@ import psutil
 import sys
 try:
     import uvloop
-    asyncio.set_event_loop_policty(uvloop.EventLoopPolicy())
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 except ImportError:
     if sys.playform == 'linux':
         print("/!\ The bot is being hosted on a Linux system, but uvloop isnt installed! Please install this to help aid the speed of the bot.")
@@ -46,6 +47,7 @@ class Gamma(commands.Bot):
         self.blacklist = {}
         self.global_blacklist = []
         self.process = psutil.Process()
+        self.launch = None
         self.loop.create_task(self.__ainit__())
     
     async def __ainit__(self):
@@ -98,6 +100,7 @@ class Gamma(commands.Bot):
         await self.flush_database()
         loaded, failed = self.format_extensions()
         final = time.perf_counter() - start
+        self.launch = datetime.utcnow()
         await self.get_user(455289384187592704).send(f"Loaded the following:\n```fix\n{loaded}\n```Failed to load the following:\n```fix\n{failed}\n```\n\nConnected in {round(final, 2)} seconds.")
         
     async def flush_database(self):
@@ -110,7 +113,7 @@ class Gamma(commands.Bot):
         for guild, members in self.blacklist.items():
             await self.db.execute("INSERT INTO blacklist VALUES ($1, $2);", guild.id, [m.id for m in members])
         for user in self.global_blacklist:
-            await self.db.execute("INSERT INTO global_blacklist VALUES ($1);", user.id)
+            await self.db.execute("INSERT INTO global_blacklist VALUES ($1);", user)
     
     def is_blacklisted(self, guild, member):
         blacklist = self.blacklist.get(guild, None)
