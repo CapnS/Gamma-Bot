@@ -9,6 +9,7 @@ import discord
 # data handling
 import asyncpg
 import json
+import asyncio
 
 # utilities
 from cogs.utils import checks, context
@@ -17,6 +18,13 @@ from cogs.utils import checks, context
 import os
 import traceback
 import psutil
+import sys
+try:
+    import uvloop
+    asyncio.set_event_loop_policty(uvloop.EventLoopPolicy())
+except ImportError:
+    if sys.playform == 'linux':
+        print("/!\ The bot is being hosted on a Linux system, but uvloop isnt installed! Please install this to help aid the speed of the bot.")
 
 
 # configuration

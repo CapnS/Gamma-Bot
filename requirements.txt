@@ -2,14 +2,5 @@ git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py[voice]
 asyncpg
 aiohttp
 psutil
-lxml
-psycopg2-binary
-speedtest-cli
 jishaku
-GitPython
-pympler
 uvloop ; sys_platform == 'linux'
-matplotlib
-async_timeout
-youtube-dl
-colorthief
