@@ -102,6 +102,7 @@ class Gamma(commands.Bot):
         final = time.perf_counter() - start
         self.launch = datetime.utcnow()
         await self.get_user(455289384187592704).send(f"Loaded the following:\n```fix\n{loaded}\n```Failed to load the following:\n```fix\n{failed}\n```\n\nConnected in {round(final, 2)} seconds.")
+        print("Connected.")
         
     async def flush_database(self):
         flush_begin = time.perf_counter()
@@ -113,7 +114,7 @@ class Gamma(commands.Bot):
         for guild, members in self.blacklist.items():
             await self.db.execute("INSERT INTO blacklist VALUES ($1, $2);", guild.id, [m.id for m in members])
         for user in self.global_blacklist:
-            await self.db.execute("INSERT INTO global_blacklist VALUES ($1);", user)
+            await self.db.execute("INSERT INTO global_blacklist VALUES ($1);", user.id)
     
     def is_blacklisted(self, guild, member):
         blacklist = self.blacklist.get(guild, None)

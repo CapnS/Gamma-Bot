@@ -11,7 +11,7 @@ class Information:
     @checks.not_blacklisted()
     async def stats(self, ctx):
         """ View quick statistics about the bot. """
-        await ctx.send(f"""I have been running for {info.time_diff(datetime.utcnow(), self.bot.launch)}
+        await ctx.send(f"""I have been running since {info.time_diff(datetime.utcnow(), self.bot.launch)}
 {self.bot.process.memory_full_info().uss//(1024**2) or self.bot.process.memory_info().rss//(1024**2)}MB ram
 {self.bot.process.cpu_percent()}% CPU usage
 {round(self.bot.latency*1000)} ms websocket latency.""")
@@ -29,7 +29,6 @@ class Information:
         msg = await ctx.send("Ping")
         if msg.created_at >= ctx.message.created_at:
             await msg.delete()
-            
-            
+
 def setup(bot): 
     bot.add_cog(Information(bot))
