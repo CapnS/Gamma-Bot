@@ -165,5 +165,5 @@ matplotlib
 ```
 
 ## Credits
-Not much to say here, bug Xua#9307 created this bot and
+Not much to say here, but Xua#9307 created this bot and
 any credit should go to him.
