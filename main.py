@@ -1,8 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # time
+=======
+# measurement
+>>>>>>> parent of 83d310c... finish the debugging commands
 import time
 start = time.perf_counter()
-from datetime import datetime
 
 # discord
 =======
@@ -18,7 +21,7 @@ import json
 import asyncio
 
 # utilities
-from utils import checks, context
+from cogs.utils import checks, context
 
 # extra
 =======
@@ -36,7 +39,7 @@ matplotlib.use('Agg')
 >>>>>>> parent of 38c411e... began rewrite to improve memory usage
 try:
     import uvloop
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+    asyncio.set_event_loop_policty(uvloop.EventLoopPolicy())
 except ImportError:
 <<<<<<< HEAD
     if sys.playform == 'linux':
@@ -114,7 +117,10 @@ class Bot(commands.Bot):
         self._ignore_errors = commands.CommandNotFound, commands.NotOwner
         self.process = psutil.Process()
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.launch = None
+=======
+>>>>>>> parent of 83d310c... finish the debugging commands
         self.loop.create_task(self.__ainit__())
     
     async def __ainit__(self):
@@ -340,7 +346,6 @@ class Bot(commands.Bot):
         await self.flush_database()
         loaded, failed = self.format_extensions()
         final = time.perf_counter() - start
-        self.launch = datetime.utcnow()
         await self.get_user(455289384187592704).send(f"Loaded the following:\n```fix\n{loaded}\n```Failed to load the following:\n```fix\n{failed}\n```\n\nConnected in {round(final, 2)} seconds.")
         print("Connected.")
         
@@ -355,6 +360,7 @@ class Bot(commands.Bot):
             await self.db.execute("INSERT INTO blacklist VALUES ($1, $2);", guild.id, [m.id for m in members])
         for user in self.global_blacklist:
             await self.db.execute("INSERT INTO global_blacklist VALUES ($1);", user.id)
+<<<<<<< HEAD
 =======
         self.official = self.get_guild(483063756948111372) is not None
         self.xua = self.get_user(455289384187592704)
@@ -374,6 +380,8 @@ class Bot(commands.Bot):
             f"```prolog\n{failed}\n```"
         )
 >>>>>>> parent of 38c411e... began rewrite to improve memory usage
+=======
+>>>>>>> parent of 83d310c... finish the debugging commands
     
     async def on_command_error(self, ctx, exc):
         if isinstance(exc, commands.CommandInvokeError):
