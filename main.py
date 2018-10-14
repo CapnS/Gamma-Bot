@@ -19,7 +19,6 @@ import json
 from cogs.utils import checks, context
 
 # extra
-=======
 import git
 import asyncio
 import asyncio
