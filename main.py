@@ -1,18 +1,11 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 # time
-=======
 # measurement
->>>>>>> parent of 83d310c... finish the debugging commands
 import time
 start = time.perf_counter()
 
 # discord
-=======
->>>>>>> parent of 38c411e... began rewrite to improve memory usage
-=======
->>>>>>> parent of 38c411e... began rewrite to improve memory usage
+
 from discord.ext import commands
 from datetime import datetime
 from discord.utils import get
@@ -20,9 +13,7 @@ import discord
 import asyncpg
 import psycopg2
 import json
-<<<<<<< HEAD
-<<<<<<< HEAD
-import asyncio
+
 
 # utilities
 from cogs.utils import checks, context
@@ -31,37 +22,25 @@ from cogs.utils import checks, context
 =======
 import git
 import asyncio
->>>>>>> parent of 38c411e... began rewrite to improve memory usage
-=======
-import git
 import asyncio
->>>>>>> parent of 38c411e... began rewrite to improve memory usage
 import os
 import matplotlib
 import traceback
 import psutil
-<<<<<<< HEAD
-<<<<<<< HEAD
 import sys
-=======
 matplotlib.use('Agg')
->>>>>>> parent of 38c411e... began rewrite to improve memory usage
 try:
     import uvloop
     asyncio.set_event_loop_policty(uvloop.EventLoopPolicy())
 except ImportError:
-<<<<<<< HEAD
     if sys.playform == 'linux':
         print("/!\ The bot is being hosted on a Linux system, but uvloop isnt installed! Please install this to help aid the speed of the bot.")
-=======
     print("uvloop not detected. If you are using a Linux-based system, please make sure to install it.")
->>>>>>> parent of 38c411e... began rewrite to improve memory usage
 
 JISHAKU_HIDE = 'on'
 
 BETA = os.getenv('DEBUG_MODE') is None
 
-=======
 matplotlib.use('Agg')
 try:
     import uvloop
@@ -73,7 +52,6 @@ JISHAKU_HIDE = 'on'
 
 BETA = os.getenv('DEBUG_MODE') is None
 
->>>>>>> parent of 38c411e... began rewrite to improve memory usage
 # extensions = [f"cogs.{e.replace('.py','')}" for e in list(os.walk("./cogs"))[0][2] if e.endswith(".py")]
 extensions = ["cogs."+g.replace(".py", "") for g in os.listdir("cogs") if g.endswith(".py")]
 extensions.append('jishaku')
@@ -138,20 +116,13 @@ class Bot(commands.Bot):
         self.data_transfer_channel = 496195772799516692
         self._ignore_errors = commands.CommandNotFound, commands.NotOwner
         self.process = psutil.Process()
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         self.launch = None
-=======
->>>>>>> parent of 83d310c... finish the debugging commands
         self.loop.create_task(self.__ainit__())
     
     async def __ainit__(self):
         self.db = await asyncpg.create_pool(**credentials)
     
-=======
-=======
->>>>>>> parent of 38c411e... began rewrite to improve memory usage
+
         self._loaded_modules = []
         self._failed_modules = []
         self._legal_immigrants = [455289384187592704]
@@ -262,10 +233,7 @@ class Bot(commands.Bot):
         return get(guild.roles,
                    id=(await self.db.fetchval("SELECT roleid FROM muted_roles WHERE guildid=$1;", guild.id)))
 
-<<<<<<< HEAD
->>>>>>> parent of 38c411e... began rewrite to improve memory usage
-=======
->>>>>>> parent of 38c411e... began rewrite to improve memory usage
+
     async def get_pref(self, bot, message):
         return self.prefixes.get(message.guild.id) or "g!"
 
@@ -349,8 +317,6 @@ class Bot(commands.Bot):
             await asyncio.sleep(3600)
 
     async def on_ready(self):
-<<<<<<< HEAD
-<<<<<<< HEAD
         self.get_command("help").hidden = True
         for record in await self.db.fetch("SELECT * FROM prefixes WHERE bot=$1;", self.user.id):
             guild = self.get_guild(record['guildid'])
@@ -389,10 +355,6 @@ class Bot(commands.Bot):
             await self.db.execute("INSERT INTO blacklist VALUES ($1, $2);", guild.id, [m.id for m in members])
         for user in self.global_blacklist:
             await self.db.execute("INSERT INTO global_blacklist VALUES ($1);", user.id)
-<<<<<<< HEAD
-=======
-=======
->>>>>>> parent of 38c411e... began rewrite to improve memory usage
         self.official = self.get_guild(483063756948111372) is not None
         self.xua = self.get_user(455289384187592704)
         self.loop.create_task(self.presence_updater())  # updates every 10 minutes
@@ -410,13 +372,7 @@ class Bot(commands.Bot):
             f"Failed to load {len(self._failed_modules)} modules\n"
             f"```prolog\n{failed}\n```"
         )
-<<<<<<< HEAD
->>>>>>> parent of 38c411e... began rewrite to improve memory usage
-=======
->>>>>>> parent of 83d310c... finish the debugging commands
-=======
->>>>>>> parent of 38c411e... began rewrite to improve memory usage
-    
+
     async def on_command_error(self, ctx, exc):
         if isinstance(exc, commands.CommandInvokeError):
             exc = exc.original
